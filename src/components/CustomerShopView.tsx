@@ -154,16 +154,14 @@ export default function CustomerShopView({
       const query = aiQuery.toLowerCase();
       let responseText = "";
 
-      if (query.includes("coat") || query.includes("trench") || query.includes("parka") || query.includes("outerwear") || query.includes("jacket") || query.includes("cold") || query.includes("rain") || query.includes("winter")) {
-        responseText = `For your interest in technical outerwear, I recommend pairing the **Modular Trench Parka** (SKU-9904) with our **Structured Wool Overshirt** (SKU-9912). This combination ensures high weather-resistance and a bold architectural silhouette.`;
-      } else if (query.includes("shoe") || query.includes("sneaker") || query.includes("footwear") || query.includes("run") || query.includes("walk") || query.includes("sport")) {
-        responseText = `To elevate your footwear collection, consider the **NPU Cyber Runner Sneakers** (SKU-8821) in Dark Matter. They pair perfectly with the **Tapered Technical Cargos** (SKU-9908) to anchor your look with functional design.`;
-      } else if (query.includes("shirt") || query.includes("pants") || query.includes("cargo") || query.includes("trouser") || query.includes("apparel") || query.includes("clothes")) {
-        responseText = `For a clean minimalist uniform, I suggest the **Structured Wool Overshirt** (SKU-9912) worn open over a base layer, combined with the **Tapered Technical Cargos** (SKU-9908) for premium comfort and structural styling.`;
-      } else if (query.includes("glass") || query.includes("sunglass") || query.includes("accessory") || query.includes("shades")) {
-        responseText = `To complement your outfit, our **Ceramic Tech Sunglasses** (SKU-8840) are the perfect finish. Their architectural frames provide architectural symmetry and structural balance to any technical outfit.`;
+      if (query.includes("coat") || query.includes("blazer") || query.includes("outerwear") || query.includes("jacket")) {
+        responseText = `For technical outerwear, I recommend the **Coats and Blazers #1** (SKU: 1-WHITE) for Feminine styling or **Coats and Blazers #12** (SKU: 12-GREEN) for Masculine architecture.`;
+      } else if (query.includes("sweater") || query.includes("knit") || query.includes("shirt")) {
+        responseText = `For premium knit layers, I suggest the **Sweaters and Knitwear #2** (SKU: 2-GREEN) or the **Sweaters and Sweatshirts #13** (SKU: 13-BLUE) for clean contours and thermal comfort.`;
+      } else if (query.includes("baby") || query.includes("child") || query.includes("kid")) {
+        responseText = `For the children's line, the **Baby (0-12 months) #21** (SKU: 21) in Turquoise pairs comfortable play-ready fabrics with exceptional modern durability.`;
       } else {
-        responseText = `Based on your request "${aiQuery}", I highly recommend pairing the **Modular Trench Parka** (SKU-9904) with the **Structured Wool Overshirt** (SKU-9912) and **Ceramic Tech Sunglasses** (SKU-8840) for a modern, functional, and weather-proof minimalist look.`;
+        responseText = `Based on your request "${aiQuery}", I suggest pairing the **Coats and Blazers #1** (SKU: 1-WHITE) with the **Sweaters and Knitwear #2** (SKU: 2-GREEN) for a refined, weather-resistant minimalist style.`;
       }
 
       setAiResponse(responseText);
@@ -254,7 +252,7 @@ export default function CustomerShopView({
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-6 border-b border-border-subtle mb-8">
           {/* Categories */}
           <div className="flex items-center gap-2 overflow-x-auto pb-2 md:pb-0 scrollbar-none">
-            {["All", "Outerwear", "Footwear", "Tailored Essentials", "Tech Accessories"].map((cat) => {
+            {["All", "Feminine", "Masculine", "Children"].map((cat) => {
               const isActive = activeCategory === cat;
               return (
                 <button
