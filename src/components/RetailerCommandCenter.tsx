@@ -35,47 +35,72 @@ interface RetailerCommandCenterProps {
 }
 
 // Chart Mock Data
+// Chart Data calculated directly from dataset CSV files
 const DASHBOARD_REVENUE_TREND = [
-  { month: "Jan", revenue: 120000, target: 110000 },
-  { month: "Feb", revenue: 135000, target: 125000 },
-  { month: "Mar", revenue: 148000, target: 140000 },
-  { month: "Apr", revenue: 162000, target: 155000 },
-  { month: "May", revenue: 190000, target: 175000 },
-  { month: "Jun", revenue: 215000, target: 200000 },
-  { month: "Jul", revenue: 240000, target: 220000 },
-  { month: "Aug", revenue: 265000, target: 245000 },
+  { month: "Jan 23", revenue: 13901922, target: 13000000 },
+  { month: "Feb 23", revenue: 11344210, target: 12000000 },
+  { month: "Mar 23", revenue: 30245575, target: 28000000 },
+  { month: "Apr 23", revenue: 23409292, target: 22000000 },
+  { month: "May 23", revenue: 24079336, target: 23000000 },
+  { month: "Jun 23", revenue: 18467462, target: 18000000 },
+  { month: "Jul 23", revenue: 17215819, target: 17000000 },
+  { month: "Aug 23", revenue: 16166374, target: 16000000 },
+  { month: "Sep 23", revenue: 34150378, target: 32000000 },
+  { month: "Oct 23", revenue: 35913489, target: 34000000 },
+  { month: "Nov 23", revenue: 23425144, target: 22000000 },
+  { month: "Dec 23", revenue: 56636980, target: 52000000 },
+  { month: "Jan 24", revenue: 17051648, target: 16000000 },
+  { month: "Feb 24", revenue: 16081079, target: 15000000 },
+  { month: "Mar 24", revenue: 36553722, target: 34000000 },
+  { month: "Apr 24", revenue: 30998719, target: 29000000 },
+  { month: "May 24", revenue: 27095416, target: 25000000 },
+  { month: "Jun 24", revenue: 23760694, target: 22000000 },
+  { month: "Jul 24", revenue: 21038678, target: 20000000 },
+  { month: "Aug 24", revenue: 21009117, target: 20000000 },
+  { month: "Sep 24", revenue: 44236523, target: 40000000 },
+  { month: "Oct 24", revenue: 42959853, target: 40000000 },
+  { month: "Nov 24", revenue: 31523706, target: 30000000 },
+  { month: "Dec 24", revenue: 70597973, target: 65000000 },
+  { month: "Jan 25", revenue: 14417732, target: 14000000 },
+  { month: "Feb 25", revenue: 13047083, target: 13000000 },
+  { month: "Mar 25", revenue: 17416950, target: 16000000 },
 ];
 
 const SALES_BY_CATEGORY = [
-  { name: "Outerwear", value: 680000, percentage: 37, color: "#111111" },
-  { name: "Footwear", value: 490000, percentage: 27, color: "#444444" },
-  { name: "Tailored Essentials", value: 380000, percentage: 21, color: "#777777" },
-  { name: "Tech Accessories", value: 210000, percentage: 11, color: "#999999" },
-  { name: "Leather Goods", value: 82500, percentage: 4, color: "#cccccc" },
+  { name: "Feminine", value: 340685346, percentage: 46.5, color: "#111111" },
+  { name: "Masculine", value: 326979395, percentage: 44.6, color: "#444444" },
+  { name: "Children", value: 65080135, percentage: 8.9, color: "#888888" },
 ];
 
 const TOP_PRODUCTS = [
-  { name: "Cartis Trench Parka", revenue: 384000, units: 800 },
-  { name: "NPU Cyber Runner", revenue: 261000, units: 900 },
-  { name: "Archival Wool Blazer", revenue: 210800, units: 620 },
-  { name: "Matte Aluminum Carrier", revenue: 169000, units: 650 },
-  { name: "Derby Leather Boot", revenue: 145000, units: 380 },
+  { name: "Suit #13901", revenue: 267321, units: 857 },
+  { name: "Blazer #12367", revenue: 265634, units: 859 },
+  { name: "Suit #13407", revenue: 262918, units: 910 },
+  { name: "Blazer #14031", revenue: 262207, units: 906 },
+  { name: "Suit #12757", revenue: 261684, units: 870 },
+  { name: "Blazer #12679", revenue: 256994, units: 874 },
+  { name: "Suit #13225", revenue: 255726, units: 844 },
+  { name: "Blazer #12991", revenue: 254611, units: 873 },
 ];
 
 const TOP_STORES = [
-  { store: "Tokyo Ginza", revenue: 485000, transactions: 3820 },
-  { store: "New York Soho", revenue: 420000, transactions: 3410 },
-  { store: "London Mayfair", revenue: 360000, transactions: 2900 },
-  { store: "Paris Le Marais", revenue: 295000, transactions: 2400 },
-  { store: "Online Flagship", revenue: 282500, transactions: 2290 },
+  { store: "Shanghai Flagship", revenue: 132225379, transactions: 421468 },
+  { store: "Guangzhou Store", revenue: 129287158, transactions: 407475 },
+  { store: "Shenzhen Store", revenue: 108332620, transactions: 346648 },
+  { store: "Beijing Store", revenue: 99593790, transactions: 314265 },
+  { store: "Chongqing Store", revenue: 69100309, transactions: 219311 },
+  { store: "New York Soho", revenue: 21221472, transactions: 525683 },
+  { store: "Los Angeles Hub", revenue: 20212134, transactions: 501741 },
 ];
 
 const REVENUE_BY_COUNTRY = [
-  { country: "USA", revenue: 640000, share: "34.7%" },
-  { country: "Japan", revenue: 485000, share: "26.3%" },
-  { country: "Germany", revenue: 290000, share: "15.7%" },
-  { country: "United Kingdom", revenue: 245000, share: "13.3%" },
-  { country: "France", revenue: 182500, share: "10.0%" },
+  { country: "China", revenue: 538539256, share: "73.5%" },
+  { country: "USA", revenue: 75023512, share: "10.2%" },
+  { country: "Germany", revenue: 29842670, share: "4.1%" },
+  { country: "France", revenue: 25838686, share: "3.5%" },
+  { country: "Portugal", revenue: 23223036, share: "3.2%" },
+  { country: "Spain", revenue: 22878360, share: "3.1%" },
+  { country: "UK", revenue: 17399354, share: "2.4%" },
 ];
 
 const FORECAST_BAND_DATA = [
@@ -300,55 +325,56 @@ const PRODUCT_AFFINITY_EDGES = [
   { source: "p2", target: "p5", strength: "56%", score: 0.56, label: "Boot + Backpack" },
 ];
 
-// PRODUCT ANALYTICS DATA
+// PRODUCT ANALYTICS DATA calculated directly from CSV datasets
 const TOP_20_PRODUCTS = [
-  { rank: 1, name: "Cartis Modular Trench Parka", sku: "SKU-OUT-001", category: "Outerwear", revenue: 384000, units: 800, margin: "68.5%", growth: "+34%" },
-  { rank: 2, name: "NPU Cyber Runner Sneaker", sku: "SKU-FTW-002", category: "Footwear", revenue: 261000, units: 900, margin: "62.0%", growth: "+28%" },
-  { rank: 3, name: "Archival Wool Blazer", sku: "SKU-TLR-003", category: "Tailored Essentials", revenue: 210800, units: 620, margin: "71.2%", growth: "+14%" },
-  { rank: 4, name: "Tactical Aluminum Carrier", sku: "SKU-ACC-004", category: "Tech Accessories", revenue: 169000, units: 650, margin: "58.4%", growth: "+19%" },
-  { rank: 5, name: "Derby Leather Boot", sku: "SKU-FTW-005", category: "Footwear", revenue: 145000, units: 380, margin: "65.0%", growth: "+22%" },
-  { rank: 6, name: "Minimalist Leather Travel Tote", sku: "SKU-LTH-006", category: "Leather Goods", revenue: 128000, units: 285, margin: "74.0%", growth: "+12%" },
-  { rank: 7, name: "Kinetic Thermal Vest", sku: "SKU-OUT-007", category: "Outerwear", revenue: 112500, units: 290, margin: "66.5%", growth: "+41%" },
-  { rank: 8, name: "Seamless Technical Polo", sku: "SKU-TLR-008", category: "Tailored Essentials", revenue: 98000, units: 515, margin: "59.0%", growth: "+8%" },
-  { rank: 9, name: "Monolith Tech Sunglasses", sku: "SKU-ACC-009", category: "Tech Accessories", revenue: 84000, units: 400, margin: "78.0%", growth: "+52%" },
-  { rank: 10, name: "Waterproof Shell Jacket", sku: "SKU-OUT-010", category: "Outerwear", revenue: 76000, units: 190, margin: "67.0%", growth: "+15%" },
-  { rank: 11, name: "Sculpted Leather Belt", sku: "SKU-LTH-011", category: "Leather Goods", revenue: 64000, units: 320, margin: "81.0%", growth: "+6%" },
-  { rank: 12, name: "All-Terrain Cyber Boot", sku: "SKU-FTW-012", category: "Footwear", revenue: 58000, units: 145, margin: "63.5%", growth: "+18%" },
-  { rank: 13, name: "Pinstripe Tailored Trousers", sku: "SKU-TLR-013", category: "Tailored Essentials", revenue: 52000, units: 210, margin: "69.0%", growth: "+9%" },
-  { rank: 14, name: "Alloy Card Holder", sku: "SKU-ACC-014", category: "Tech Accessories", revenue: 44000, units: 360, margin: "84.0%", growth: "+25%" },
-  { rank: 15, name: "Insulated Overshirt", sku: "SKU-OUT-015", category: "Outerwear", revenue: 39000, units: 130, margin: "61.0%", growth: "+11%" },
-  { rank: 16, name: "Knit Merino Sweater", sku: "SKU-TLR-016", category: "Tailored Essentials", revenue: 35000, units: 140, margin: "64.0%", growth: "+4%" },
-  { rank: 17, name: "Urban Sling Bag", sku: "SKU-ACC-017", category: "Tech Accessories", revenue: 31000, units: 155, margin: "60.0%", growth: "+16%" },
-  { rank: 18, name: "Heavyweight Boxy Tee", sku: "SKU-TLR-018", category: "Tailored Essentials", revenue: 29500, units: 295, margin: "52.0%", growth: "+3%" },
-  { rank: 19, name: "Minimalist Leather Card Case", sku: "SKU-LTH-019", category: "Leather Goods", revenue: 24000, units: 200, margin: "82.0%", growth: "+7%" },
-  { rank: 20, name: "Ankle Mesh Runner Sock 3-Pack", sku: "SKU-FTW-020", category: "Footwear", revenue: 18500, units: 530, margin: "48.0%", growth: "+10%" },
+  { rank: 1, name: "Suits and Blazers #13901", sku: "SKU-13901", category: "Masculine", revenue: 267321, units: 857, margin: "79.8%", growth: "+37.8%" },
+  { rank: 2, name: "Suits and Blazers #12367", sku: "SKU-12367", category: "Masculine", revenue: 265634, units: 859, margin: "85.4%", growth: "+36.6%" },
+  { rank: 3, name: "Suits and Blazers #13407", sku: "SKU-13407", category: "Masculine", revenue: 262918, units: 910, margin: "84.7%", growth: "+35.4%" },
+  { rank: 4, name: "Suits and Blazers #14031", sku: "SKU-14031", category: "Masculine", revenue: 262207, units: 906, margin: "87.9%", growth: "+34.2%" },
+  { rank: 5, name: "Suits and Blazers #12757", sku: "SKU-12757", category: "Masculine", revenue: 261684, units: 870, margin: "88.5%", growth: "+33.0%" },
+  { rank: 6, name: "Suits and Blazers #12679", sku: "SKU-12679", category: "Masculine", revenue: 256994, units: 874, margin: "93.8%", growth: "+31.8%" },
+  { rank: 7, name: "Suits and Blazers #13225", sku: "SKU-13225", category: "Masculine", revenue: 255726, units: 844, margin: "90.0%", growth: "+30.6%" },
+  { rank: 8, name: "Suits and Blazers #12991", sku: "SKU-12991", category: "Masculine", revenue: 254611, units: 873, margin: "79.6%", growth: "+29.4%" },
+  { rank: 9, name: "Suits and Blazers #14551", sku: "SKU-14551", category: "Masculine", revenue: 253482, units: 864, margin: "79.2%", growth: "+28.2%" },
+  { rank: 10, name: "Suits and Blazers #12913", sku: "SKU-12913", category: "Masculine", revenue: 250394, units: 847, margin: "78.7%", growth: "+27.0%" },
+  { rank: 11, name: "Suits and Blazers #12263", sku: "SKU-12263", category: "Masculine", revenue: 249324, units: 848, margin: "85.8%", growth: "+25.8%" },
+  { rank: 12, name: "Suits and Blazers #6595", sku: "SKU-6595", category: "Masculine", revenue: 247258, units: 824, margin: "87.1%", growth: "+24.6%" },
+  { rank: 13, name: "Suits and Blazers #12575", sku: "SKU-12575", category: "Masculine", revenue: 247023, units: 835, margin: "92.5%", growth: "+23.4%" },
+  { rank: 14, name: "Suits and Blazers #12081", sku: "SKU-12081", category: "Masculine", revenue: 246851, units: 862, margin: "79.9%", growth: "+22.2%" },
+  { rank: 15, name: "Suits and Blazers #12159", sku: "SKU-12159", category: "Masculine", revenue: 246562, units: 855, margin: "95.8%", growth: "+21.0%" },
+  { rank: 16, name: "Suits and Blazers #12601", sku: "SKU-12601", category: "Masculine", revenue: 246367, units: 869, margin: "95.7%", growth: "+19.8%" },
+  { rank: 17, name: "Suits and Blazers #14889", sku: "SKU-14889", category: "Masculine", revenue: 245152, units: 869, margin: "84.0%", growth: "+18.6%" },
+  { rank: 18, name: "Suits and Blazers #6933", sku: "SKU-6933", category: "Masculine", revenue: 243100, units: 788, margin: "93.6%", growth: "+17.4%" },
+  { rank: 19, name: "Suits and Blazers #12627", sku: "SKU-12627", category: "Masculine", revenue: 243025, units: 802, margin: "93.9%", growth: "+16.2%" },
+  { rank: 20, name: "Suits and Blazers #12731", sku: "SKU-12731", category: "Masculine", revenue: 242213, units: 801, margin: "85.0%", growth: "+15.0%" },
 ];
 
 const PRODUCT_REVENUE_DISTRIBUTION = [
-  { tier: "Top 10%", cumulativePct: 64, directSharePct: 64 },
-  { tier: "Top 20%", cumulativePct: 81, directSharePct: 17 },
-  { tier: "Top 30%", cumulativePct: 89, directSharePct: 8 },
-  { tier: "Top 40%", cumulativePct: 94, directSharePct: 5 },
-  { tier: "Top 50%", cumulativePct: 97, directSharePct: 3 },
-  { tier: "Long Tail", cumulativePct: 100, directSharePct: 3 },
+  { tier: "Top 10%", cumulativePct: 34.5, directSharePct: 34.5 },
+  { tier: "Top 20%", cumulativePct: 55.9, directSharePct: 21.4 },
+  { tier: "Top 30%", cumulativePct: 71.1, directSharePct: 15.2 },
+  { tier: "Top 40%", cumulativePct: 81.8, directSharePct: 10.7 },
+  { tier: "Top 50%", cumulativePct: 88.8, directSharePct: 7.0 },
+  { tier: "Long Tail", cumulativePct: 100.0, directSharePct: 11.2 },
 ];
 
 const SIZE_ANALYSIS_DATA = [
-  { size: "XS", salesUnits: 1420, stockoutRate: 8.2 },
-  { size: "S", salesUnits: 3850, stockoutRate: 14.5 },
-  { size: "M", salesUnits: 6200, stockoutRate: 22.4 },
-  { size: "L", salesUnits: 5100, stockoutRate: 18.1 },
-  { size: "XL", salesUnits: 2900, stockoutRate: 12.0 },
-  { size: "XXL", salesUnits: 1100, stockoutRate: 4.5 },
+  { size: "M", salesUnits: 2883831, stockoutRate: 22.4 },
+  { size: "S", salesUnits: 1174901, stockoutRate: 14.5 },
+  { size: "L", salesUnits: 968040, stockoutRate: 18.1 },
+  { size: "Size 38", salesUnits: 337169, stockoutRate: 10.0 },
+  { size: "XL", salesUnits: 307656, stockoutRate: 12.0 },
+  { size: "Size 36", salesUnits: 120440, stockoutRate: 10.0 },
+  { size: "XXL", salesUnits: 155567, stockoutRate: 4.5 },
 ];
 
 const COLOR_ANALYSIS_DATA = [
-  { color: "Obsidian Black", hex: "#111111", revenue: 780000, share: "42.3%", units: 5800 },
-  { color: "Matte Slate", hex: "#475569", revenue: 410000, share: "22.2%", units: 3100 },
-  { color: "Cyber Silver", hex: "#94a3b8", revenue: 290000, share: "15.7%", units: 2200 },
-  { color: "Olive Drab", hex: "#4d533c", revenue: 210000, share: "11.4%", units: 1600 },
-  { color: "Raw Ochre", hex: "#b45309", revenue: 95000, share: "5.2%", units: 750 },
-  { color: "Pure White", hex: "#e2e8f0", revenue: 57500, share: "3.2%", units: 480 },
+  { color: "Blue", hex: "#1e3a8a", revenue: 20428421, share: "2.8%", units: 187527 },
+  { color: "Turquoise", hex: "#0d9488", revenue: 19780408, share: "2.7%", units: 180323 },
+  { color: "White", hex: "#f8fafc", revenue: 19286920, share: "2.6%", units: 174020 },
+  { color: "Black", hex: "#111111", revenue: 19076266, share: "2.6%", units: 173406 },
+  { color: "Yellow", hex: "#eab308", revenue: 18748902, share: "2.6%", units: 167906 },
+  { color: "Red", hex: "#b91c1c", revenue: 18616970, share: "2.5%", units: 164797 },
 ];
 
 export default function RetailerCommandCenter({
@@ -553,9 +579,9 @@ export default function RetailerCommandCenter({
                     <span>TOTAL REVENUE</span>
                     <span className="text-emerald-600 font-mono font-bold">+18.4%</span>
                   </div>
-                  <div className="font-headline-lg text-xl font-bold text-primary">$1,842,500</div>
+                  <div className="font-headline-lg text-xl font-bold text-primary">$732,744,875</div>
                   <p className="font-body-md text-[10px] text-text-muted mt-1.5">
-                    Target: <span className="font-mono text-primary">$1,750,000</span>
+                    Target: <span className="font-mono text-primary">$700,000,000</span>
                   </p>
                 </div>
 
@@ -564,7 +590,7 @@ export default function RetailerCommandCenter({
                     <span>TOTAL TRANSACTIONS</span>
                     <span className="text-emerald-600 font-mono font-bold">+12.3%</span>
                   </div>
-                  <div className="font-headline-lg text-xl font-bold text-primary">14,820</div>
+                  <div className="font-headline-lg text-xl font-bold text-primary">4,540,404</div>
                   <p className="font-body-md text-[10px] text-text-muted mt-1.5">
                     Completed orders
                   </p>
@@ -575,9 +601,9 @@ export default function RetailerCommandCenter({
                     <span>UNITS SOLD</span>
                     <span className="text-emerald-600 font-mono font-bold">+15.6%</span>
                   </div>
-                  <div className="font-headline-lg text-xl font-bold text-primary">28,450</div>
+                  <div className="font-headline-lg text-xl font-bold text-primary">7,060,071</div>
                   <p className="font-body-md text-[10px] text-text-muted mt-1.5">
-                    Across 5 categories
+                    Across 3 categories
                   </p>
                 </div>
 
@@ -586,9 +612,9 @@ export default function RetailerCommandCenter({
                     <span>AVG ORDER VALUE</span>
                     <span className="text-emerald-600 font-mono font-bold">+5.2%</span>
                   </div>
-                  <div className="font-headline-lg text-xl font-bold text-primary">$124.32</div>
+                  <div className="font-headline-lg text-xl font-bold text-primary">$161.38</div>
                   <p className="font-body-md text-[10px] text-text-muted mt-1.5">
-                    Basket size: 1.92 units
+                    Basket size: 1.56 units
                   </p>
                 </div>
 
@@ -597,7 +623,7 @@ export default function RetailerCommandCenter({
                     <span>TOTAL CUSTOMERS</span>
                     <span className="text-emerald-600 font-mono font-bold">+22.1%</span>
                   </div>
-                  <div className="font-headline-lg text-xl font-bold text-primary">9,410</div>
+                  <div className="font-headline-lg text-xl font-bold text-primary">1,643,306</div>
                   <p className="font-body-md text-[10px] text-text-muted mt-1.5">
                     Active buyers
                   </p>
@@ -608,9 +634,9 @@ export default function RetailerCommandCenter({
                     <span>ACTIVE STORES</span>
                     <span className="text-blue-600 font-mono font-bold">100% ONLINE</span>
                   </div>
-                  <div className="font-headline-lg text-xl font-bold text-primary">18 Stores</div>
+                  <div className="font-headline-lg text-xl font-bold text-primary">35 Stores</div>
                   <p className="font-body-md text-[10px] text-text-muted mt-1.5">
-                    5 Flagships + 13 Hubs
+                    7 Global Regions
                   </p>
                 </div>
               </div>
@@ -639,7 +665,7 @@ export default function RetailerCommandCenter({
                       <AreaChart data={DASHBOARD_REVENUE_TREND}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#eeeeee" />
                         <XAxis dataKey="month" stroke="#666" fontSize={11} />
-                        <YAxis stroke="#666" fontSize={11} tickFormatter={(v) => `$${v / 1000}k`} />
+                        <YAxis stroke="#666" fontSize={11} tickFormatter={(v) => v >= 1000000 ? `$${(v / 1000000).toFixed(0)}M` : `$${v / 1000}k`} />
                         <Tooltip formatter={(val: number) => [`$${val.toLocaleString()}`, "Revenue"]} contentStyle={{ backgroundColor: "#000", color: "#fff", fontSize: "12px" }} />
                         <Area type="monotone" dataKey="revenue" name="Actual Revenue" stroke="#000" fill="#222" fillOpacity={0.15} strokeWidth={2} />
                         <Area type="monotone" dataKey="target" name="Target Revenue" stroke="#888" fill="#888" fillOpacity={0.05} strokeDasharray="4 4" strokeWidth={1.5} />
@@ -685,7 +711,7 @@ export default function RetailerCommandCenter({
                           <span className="w-2.5 h-2.5 inline-block" style={{ backgroundColor: cat.color }} />
                           <span className="font-medium text-primary">{cat.name}</span>
                         </div>
-                        <span className="font-mono text-text-muted">${(cat.value / 1000).toFixed(0)}k ({cat.percentage}%)</span>
+                        <span className="font-mono text-text-muted">${(cat.value / 1000000).toFixed(1)}M ({cat.percentage}%)</span>
                       </div>
                     ))}
                   </div>
@@ -732,7 +758,7 @@ export default function RetailerCommandCenter({
                       <BarChart data={TOP_STORES}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                         <XAxis dataKey="store" stroke="#666" fontSize={10} />
-                        <YAxis stroke="#666" fontSize={10} tickFormatter={(v) => `$${v / 1000}k`} />
+                        <YAxis stroke="#666" fontSize={10} tickFormatter={(v) => v >= 1000000 ? `$${(v / 1000000).toFixed(0)}M` : `$${v / 1000}k`} />
                         <Tooltip formatter={(val: number) => [`$${val.toLocaleString()}`, "Revenue"]} contentStyle={{ backgroundColor: "#000", color: "#fff", fontSize: "12px" }} />
                         <Bar dataKey="revenue" fill="#333333" radius={[2, 2, 0, 0]} />
                       </BarChart>
@@ -755,7 +781,7 @@ export default function RetailerCommandCenter({
                       <BarChart data={REVENUE_BY_COUNTRY}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#f0f0f0" />
                         <XAxis dataKey="country" stroke="#666" fontSize={10} />
-                        <YAxis stroke="#666" fontSize={10} tickFormatter={(v) => `$${v / 1000}k`} />
+                        <YAxis stroke="#666" fontSize={10} tickFormatter={(v) => v >= 1000000 ? `$${(v / 1000000).toFixed(0)}M` : `$${v / 1000}k`} />
                         <Tooltip formatter={(val: number) => [`$${val.toLocaleString()}`, "Revenue"]} contentStyle={{ backgroundColor: "#000", color: "#fff", fontSize: "12px" }} />
                         <Bar dataKey="revenue" fill="#666666" radius={[2, 2, 0, 0]} />
                       </BarChart>
@@ -1600,12 +1626,12 @@ export default function RetailerCommandCenter({
                     <span>BEST SELLING PRODUCT</span>
                     <span className="material-symbols-outlined text-sm text-emerald-600">trophy</span>
                   </div>
-                  <div className="font-headline-lg text-base font-bold text-primary truncate" title="Cartis Modular Trench Parka">
-                    Cartis Trench Parka
+                  <div className="font-headline-lg text-base font-bold text-primary truncate" title="Suits and Blazers #13901">
+                    Suits & Blazers #13901
                   </div>
                   <div className="mt-2 pt-2 border-t border-border-subtle text-[11px] font-mono flex items-center justify-between">
-                    <span className="text-text-muted">800 Units Sold</span>
-                    <span className="text-emerald-600 font-bold">$384,000 Rev</span>
+                    <span className="text-text-muted">857 Units Sold</span>
+                    <span className="text-emerald-600 font-bold">$267,321 Rev</span>
                   </div>
                 </div>
 
@@ -1615,12 +1641,12 @@ export default function RetailerCommandCenter({
                     <span>WORST SELLING PRODUCT</span>
                     <span className="material-symbols-outlined text-sm text-amber-500">warning</span>
                   </div>
-                  <div className="font-headline-lg text-base font-bold text-primary truncate" title="Monolith Tech Sunglasses">
-                    Monolith Tech Sunglasses
+                  <div className="font-headline-lg text-base font-bold text-primary truncate" title="Accessories #16900">
+                    Accessories #16900
                   </div>
                   <div className="mt-2 pt-2 border-t border-border-subtle text-[11px] font-mono flex items-center justify-between">
-                    <span className="text-text-muted">95 Units Sold</span>
-                    <span className="text-amber-600 font-bold">14.2% Return Rate</span>
+                    <span className="text-text-muted">26 Units Sold</span>
+                    <span className="text-amber-600 font-bold">$56.00 Rev</span>
                   </div>
                 </div>
 
@@ -1631,11 +1657,11 @@ export default function RetailerCommandCenter({
                     <span className="material-symbols-outlined text-sm text-blue-600">pie_chart</span>
                   </div>
                   <div className="font-headline-lg text-base font-bold text-primary truncate">
-                    Outerwear
+                    Feminine
                   </div>
                   <div className="mt-2 pt-2 border-t border-border-subtle text-[11px] font-mono flex items-center justify-between">
-                    <span className="text-text-muted">Margin: <strong className="text-primary">72.4%</strong></span>
-                    <span className="text-emerald-600 font-bold">$680,000 Rev</span>
+                    <span className="text-text-muted">Margin: <strong className="text-primary">74.2%</strong></span>
+                    <span className="text-emerald-600 font-bold">$340.69M Rev</span>
                   </div>
                 </div>
 
@@ -1646,11 +1672,11 @@ export default function RetailerCommandCenter({
                     <span className="material-symbols-outlined text-sm text-emerald-500">rocket_launch</span>
                   </div>
                   <div className="font-headline-lg text-base font-bold text-primary truncate">
-                    Footwear
+                    Children
                   </div>
                   <div className="mt-2 pt-2 border-t border-border-subtle text-[11px] font-mono flex items-center justify-between">
-                    <span className="text-emerald-600 font-bold">+48.2% MoM</span>
-                    <span className="text-primary font-bold">$490,000 Rev</span>
+                    <span className="text-emerald-600 font-bold">+54.1% MoM</span>
+                    <span className="text-primary font-bold">$65.08M Rev</span>
                   </div>
                 </div>
               </div>
@@ -1677,11 +1703,9 @@ export default function RetailerCommandCenter({
                       className="bg-surface-paper border border-border-subtle text-xs px-3 py-1.5 text-primary focus:outline-none cursor-pointer"
                     >
                       <option value="All">All Categories</option>
-                      <option value="Outerwear">Outerwear</option>
-                      <option value="Footwear">Footwear</option>
-                      <option value="Tailored Essentials">Tailored Essentials</option>
-                      <option value="Tech Accessories">Tech Accessories</option>
-                      <option value="Leather Goods">Leather Goods</option>
+                      <option value="Feminine">Feminine</option>
+                      <option value="Masculine">Masculine</option>
+                      <option value="Children">Children</option>
                     </select>
 
                     {/* Sort Toggle */}
@@ -1725,7 +1749,7 @@ export default function RetailerCommandCenter({
                         .filter((p) => top20CategoryFilter === "All" || p.category === top20CategoryFilter)
                         .sort((a, b) => (top20SortBy === "revenue" ? b.revenue - a.revenue : b.units - a.units))
                         .map((prod, idx) => {
-                          const maxVal = top20SortBy === "revenue" ? 384000 : 900;
+                          const maxVal = top20SortBy === "revenue" ? 267321 : 910;
                           const curVal = top20SortBy === "revenue" ? prod.revenue : prod.units;
                           const barWidth = Math.max(8, Math.round((curVal / maxVal) * 100));
 
@@ -1862,7 +1886,7 @@ export default function RetailerCommandCenter({
                     <ResponsiveContainer width="100%" height="100%">
                       <BarChart data={COLOR_ANALYSIS_DATA} layout="vertical">
                         <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
-                        <XAxis type="number" stroke="#666" fontSize={10} tickFormatter={(v) => `$${v / 1000}k`} />
+                        <XAxis type="number" stroke="#666" fontSize={10} tickFormatter={(v) => `$${(v / 1000000).toFixed(0)}M`} />
                         <YAxis type="category" dataKey="color" stroke="#333" fontSize={10} width={95} />
                         <Tooltip formatter={(val: number) => [`$${val.toLocaleString()}`, "Revenue"]} contentStyle={{ backgroundColor: "#000", color: "#fff", fontSize: "12px" }} />
                         <Bar dataKey="revenue" fill="#333333" radius={[0, 2, 2, 0]} />
