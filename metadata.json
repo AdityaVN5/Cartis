@@ -1,0 +1,6 @@
+{
+  "name": "Cartis Enterprise",
+  "description": "Cartis Store & Retail Intelligence platform. Minimalist architectural e-commerce experience powered by real-time neural inventory and demand prediction.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
