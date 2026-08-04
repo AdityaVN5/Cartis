@@ -24,6 +24,12 @@ import {
   FORECAST_TABLE_DATA,
   ForecastRow
 } from "../data/forecastData";
+import {
+  INVENTORY_HUBS,
+  INVENTORY_ITEMS,
+  InventoryItem,
+  InventoryHub
+} from "../data/inventoryData";
 
 export type CommandTab =
   | "dashboard"
@@ -235,6 +241,12 @@ export default function RetailerCommandCenter({
   const [forecastStore, setForecastStore] = useState<string>("All");
   const [forecastCountry, setForecastCountry] = useState<string>("All");
 
+  // Multi-Warehouse Inventory Filter & PO States
+  const [inventoryHubFilter, setInventoryHubFilter] = useState<string>("All");
+  const [inventoryStatusFilter, setInventoryStatusFilter] = useState<string>("All");
+  const [inventoryCategoryFilter, setInventoryCategoryFilter] = useState<string>("All");
+  const [inventorySearchQuery, setInventorySearchQuery] = useState<string>("");
+
   // Simulator states
   const [priceElasticity, setPriceElasticity] = useState<number>(0);
   const [promoBoost, setPromoBoost] = useState<number>(10);
@@ -267,7 +279,7 @@ export default function RetailerCommandCenter({
   const [retrainLogs, setRetrainLogs] = useState<string[]>([]);
 
   // Restock PO modal state
-  const [poModalItem, setPoModalItem] = useState<any | null>(null);
+  const [poModalItem, setPoModalItem] = useState<InventoryItem | null>(null);
   const [poSuccess, setPoSuccess] = useState(false);
 
   // Quick copilot prompt launcher
@@ -966,141 +978,266 @@ export default function RetailerCommandCenter({
           })()}
 
           {/* TAB 3: INVENTORY OPTIMIZATION */}
-          {activeTab === "inventory" && (
-            <motion.div
-              key="tab-inventory"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="space-y-8"
-            >
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-border-subtle">
-                <div>
-                  <h2 className="font-headline-lg text-xl text-primary font-bold">
-                    Multi-Warehouse Inventory Optimization
-                  </h2>
-                  <p className="font-body-md text-xs text-text-muted">
-                    Automated buffer stock calculations and purchase order generation across regional fulfillment hubs.
-                  </p>
-                </div>
+          {activeTab === "inventory" && (() => {
+            // Filter inventory items based on Hub, Status, Category, and Search query
+            const filteredInventory = INVENTORY_ITEMS.filter((item) => {
+              if (inventoryHubFilter !== "All" && item.hub !== inventoryHubFilter) return false;
+              if (inventoryStatusFilter === "Critical" && !item.isLow) return false;
+              if (inventoryStatusFilter === "Healthy" && item.isLow) return false;
+              if (inventoryCategoryFilter !== "All" && item.category !== inventoryCategoryFilter) return false;
+              if (
+                inventorySearchQuery.trim() !== "" &&
+                !item.sku.toLowerCase().includes(inventorySearchQuery.toLowerCase()) &&
+                !item.name.toLowerCase().includes(inventorySearchQuery.toLowerCase()) &&
+                !item.subcategory.toLowerCase().includes(inventorySearchQuery.toLowerCase())
+              ) {
+                return false;
+              }
+              return true;
+            });
 
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-emerald-500 font-mono font-bold flex items-center gap-1">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    SYNCED WITH WAREHOUSE API
-                  </span>
-                </div>
-              </div>
-
-              {/* Warehouse Regional Stocks */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-surface border border-border-subtle p-5">
-                  <div className="flex items-center justify-between text-xs font-label-sm text-text-muted mb-2">
-                    <span>WAREHOUSE ALPHA (TOKYO)</span>
-                    <span className="text-emerald-500 font-mono font-bold">88% CAP</span>
+            return (
+              <motion.div
+                key="tab-inventory"
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                className="space-y-8"
+              >
+                {/* Header */}
+                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-border-subtle">
+                  <div>
+                    <h2 className="font-headline-lg text-xl text-primary font-bold">
+                      Multi-Warehouse Inventory Optimization & Safety Buffer Stock
+                    </h2>
+                    <p className="font-body-md text-xs text-text-muted">
+                      Automated buffer stock calculations ($z \times \sigma_d \times \sqrt{L}$) and purchase order generation across regional fulfillment hubs.
+                    </p>
                   </div>
-                  <div className="font-headline-lg text-xl font-bold text-primary">1,240 Units</div>
-                  <p className="font-body-md text-[11px] text-text-muted mt-2">
-                    Critical SKUs: <span className="font-mono text-amber-500 font-bold">1 Item</span>
-                  </p>
-                </div>
 
-                <div className="bg-surface border border-border-subtle p-5">
-                  <div className="flex items-center justify-between text-xs font-label-sm text-text-muted mb-2">
-                    <span>WAREHOUSE BETA (FRANKFURT)</span>
-                    <span className="text-emerald-500 font-mono font-bold">72% CAP</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-emerald-600 font-mono font-bold flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 px-3 py-1">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                      944 SKUs SYNCED WITH FULFILLMENT HUBS
+                    </span>
                   </div>
-                  <div className="font-headline-lg text-xl font-bold text-primary">2,180 Units</div>
-                  <p className="font-body-md text-[11px] text-text-muted mt-2">
-                    Critical SKUs: <span className="font-mono text-emerald-500">0 Items</span>
-                  </p>
                 </div>
 
-                <div className="bg-surface border border-border-subtle p-5">
-                  <div className="flex items-center justify-between text-xs font-label-sm text-text-muted mb-2">
-                    <span>WAREHOUSE GAMMA (NEW YORK)</span>
-                    <span className="text-amber-500 font-mono font-bold">94% CAP</span>
+                {/* Warehouse Regional Stocks (Clickable Hub Cards) */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  {INVENTORY_HUBS.map((hub) => {
+                    const isSelected = inventoryHubFilter === hub.name || (inventoryHubFilter === "Warehouse Alpha (Tokyo)" && hub.name.includes("TOKYO")) || (inventoryHubFilter === "Warehouse Beta (Frankfurt)" && hub.name.includes("FRANKFURT")) || (inventoryHubFilter === "Warehouse Gamma (New York)" && hub.name.includes("NEW YORK"));
+                    const targetHubLabel = hub.name.includes("TOKYO")
+                      ? "Warehouse Alpha (Tokyo)"
+                      : hub.name.includes("FRANKFURT")
+                      ? "Warehouse Beta (Frankfurt)"
+                      : "Warehouse Gamma (New York)";
+
+                    return (
+                      <div
+                        key={hub.name}
+                        onClick={() => setInventoryHubFilter(isSelected ? "All" : targetHubLabel)}
+                        className={`bg-surface border p-5 cursor-pointer transition-all ${
+                          isSelected
+                            ? "border-primary shadow-md ring-1 ring-primary"
+                            : "border-border-subtle hover:border-neutral-400"
+                        }`}
+                      >
+                        <div className="flex items-center justify-between text-xs font-label-sm text-text-muted mb-2">
+                          <span className="font-bold text-primary">{hub.name}</span>
+                          <span className={`font-mono font-bold ${hub.capacityPct > 90 ? "text-amber-600" : "text-emerald-600"}`}>
+                            {hub.capacityPct}% CAP
+                          </span>
+                        </div>
+                        <div className="font-headline-lg text-2xl font-bold text-primary">
+                          {hub.totalUnits.toLocaleString()} Units
+                        </div>
+                        <div className="mt-3 pt-2 border-t border-border-subtle text-[11px] font-mono flex items-center justify-between">
+                          <span className="text-text-muted">
+                            Safety Buffer: <strong className="text-primary">{hub.safetyBufferUnits.toLocaleString()}</strong>
+                          </span>
+                          <span className={hub.criticalSkus > 0 ? "text-rose-600 font-bold" : "text-emerald-600"}>
+                            {hub.criticalSkus} Critical SKUs
+                          </span>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Filters & Search Toolbar */}
+                <div className="bg-surface border border-border-subtle p-4 space-y-3 shadow-2xs">
+                  <div className="flex items-center justify-between pb-2 border-b border-border-subtle">
+                    <span className="font-label-sm text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1.5">
+                      <span className="material-symbols-outlined text-sm">filter_list</span>
+                      Inventory Search & Buffer Controls
+                    </span>
+                    {(inventoryHubFilter !== "All" || inventoryStatusFilter !== "All" || inventoryCategoryFilter !== "All" || inventorySearchQuery !== "") && (
+                      <button
+                        onClick={() => {
+                          setInventoryHubFilter("All");
+                          setInventoryStatusFilter("All");
+                          setInventoryCategoryFilter("All");
+                          setInventorySearchQuery("");
+                        }}
+                        className="text-[11px] font-mono text-amber-600 hover:underline cursor-pointer"
+                      >
+                        Reset Inventory Filters
+                      </button>
+                    )}
                   </div>
-                  <div className="font-headline-lg text-xl font-bold text-primary">1,890 Units</div>
-                  <p className="font-body-md text-[11px] text-text-muted mt-2">
-                    Critical SKUs: <span className="font-mono text-amber-500 font-bold">2 Items</span>
-                  </p>
-                </div>
-              </div>
 
-              {/* Live Inventory Health & Auto PO Table */}
-              <div className="bg-surface border border-border-subtle p-6 space-y-4">
-                <div className="flex items-center justify-between pb-3 border-b border-border-subtle">
-                  <h3 className="font-headline-lg text-sm text-primary font-bold uppercase tracking-wider">
-                    SKU Stock Health & Automated Purchase Orders
-                  </h3>
-                  <span className="text-xs text-text-muted">
-                    Click "Generate PO" to dispatch purchase orders instantly.
-                  </span>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs font-body-md">
+                    {/* Search Query */}
+                    <div>
+                      <label className="block text-[11px] text-text-muted font-medium mb-1">Search SKU / Item</label>
+                      <input
+                        type="text"
+                        placeholder="Search SKU or Product..."
+                        value={inventorySearchQuery}
+                        onChange={(e) => setInventorySearchQuery(e.target.value)}
+                        className="w-full bg-surface-paper border border-border-subtle px-3 py-2 text-xs text-primary focus:outline-none focus:border-primary"
+                      />
+                    </div>
+
+                    {/* Hub Filter */}
+                    <div>
+                      <label className="block text-[11px] text-text-muted font-medium mb-1">Fulfillment Hub</label>
+                      <select
+                        value={inventoryHubFilter}
+                        onChange={(e) => setInventoryHubFilter(e.target.value)}
+                        className="w-full bg-surface-paper border border-border-subtle px-3 py-2 text-xs text-primary focus:outline-none focus:border-primary cursor-pointer"
+                      >
+                        <option value="All">All Regional Hubs</option>
+                        <option value="Warehouse Alpha (Tokyo)">Warehouse Alpha (Tokyo)</option>
+                        <option value="Warehouse Beta (Frankfurt)">Warehouse Beta (Frankfurt)</option>
+                        <option value="Warehouse Gamma (New York)">Warehouse Gamma (New York)</option>
+                      </select>
+                    </div>
+
+                    {/* Stock Status Filter */}
+                    <div>
+                      <label className="block text-[11px] text-text-muted font-medium mb-1">Stock Status</label>
+                      <select
+                        value={inventoryStatusFilter}
+                        onChange={(e) => setInventoryStatusFilter(e.target.value)}
+                        className="w-full bg-surface-paper border border-border-subtle px-3 py-2 text-xs text-primary focus:outline-none focus:border-primary cursor-pointer"
+                      >
+                        <option value="All">All Statuses</option>
+                        <option value="Critical">Critical / Below Reorder Point</option>
+                        <option value="Healthy">Optimal / Healthy</option>
+                      </select>
+                    </div>
+
+                    {/* Category Filter */}
+                    <div>
+                      <label className="block text-[11px] text-text-muted font-medium mb-1">Category</label>
+                      <select
+                        value={inventoryCategoryFilter}
+                        onChange={(e) => setInventoryCategoryFilter(e.target.value)}
+                        className="w-full bg-surface-paper border border-border-subtle px-3 py-2 text-xs text-primary focus:outline-none focus:border-primary cursor-pointer"
+                      >
+                        <option value="All">All Categories</option>
+                        <option value="Feminine">Feminine</option>
+                        <option value="Masculine">Masculine</option>
+                        <option value="Children">Children</option>
+                      </select>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="overflow-x-auto">
-                  <table className="w-full text-xs text-left">
-                    <thead>
-                      <tr className="border-b border-border-subtle text-text-muted font-label-sm uppercase">
-                        <th className="py-2">SKU</th>
-                        <th className="py-2">Item Name</th>
-                        <th className="py-2">Current Stock</th>
-                        <th className="py-2">Safety Buffer</th>
-                        <th className="py-2">Depletion Horizon</th>
-                        <th className="py-2">Status</th>
-                        <th className="py-2 text-right">Action</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-border-subtle font-body-md">
-                      {SAMPLE_PRODUCTS.map((prod) => {
-                        const isLow = prod.stockQty <= 15;
-                        return (
-                          <tr key={prod.id} className="hover:bg-surface-container-low transition-colors">
-                            <td className="py-3 font-mono text-text-muted">{prod.sku}</td>
-                            <td className="py-3 font-bold text-primary">{prod.name}</td>
-                            <td className="py-3 font-mono font-bold">
-                              {prod.stockQty} Units
-                            </td>
-                            <td className="py-3 font-mono text-text-muted">20 Units</td>
-                            <td className="py-3 font-mono text-text-muted">
-                              {isLow ? "1-2 Days" : "14-30 Days"}
-                            </td>
-                            <td className="py-3">
-                              {isLow ? (
-                                <span className="text-[10px] bg-amber-950 text-amber-300 border border-amber-800 px-2 py-0.5 font-mono font-bold">
-                                  REORDER REQ
-                                </span>
-                              ) : (
-                                <span className="text-[10px] bg-emerald-950 text-emerald-300 border border-emerald-800 px-2 py-0.5 font-mono">
-                                  OPTIMAL
-                                </span>
-                              )}
-                            </td>
-                            <td className="py-3 text-right">
-                              <button
-                                onClick={() => {
-                                  setPoModalItem(prod);
-                                  setPoSuccess(false);
-                                }}
-                                className={`px-3 py-1 text-xs font-body-md transition-colors cursor-pointer ${
-                                  isLow
-                                    ? "bg-black text-white hover:bg-neutral-800 font-bold"
-                                    : "bg-surface text-text-muted border border-border-subtle hover:text-primary"
-                                }`}
-                              >
-                                {isLow ? "Auto-Generate PO" : "Manage Stock"}
-                              </button>
+                {/* Live Inventory Health & Auto PO Table */}
+                <div className="bg-surface border border-border-subtle p-6 space-y-4 shadow-2xs">
+                  <div className="flex items-center justify-between pb-3 border-b border-border-subtle">
+                    <h3 className="font-headline-lg text-sm text-primary font-bold uppercase tracking-wider">
+                      SKU Stock Health & Automated Purchase Orders ({filteredInventory.length} Items)
+                    </h3>
+                    <span className="text-xs font-mono text-text-muted">
+                      Formula: ROP = (Demand × LeadTime) + SafetyBuffer
+                    </span>
+                  </div>
+
+                  <div className="overflow-x-auto max-h-[520px] overflow-y-auto scrollbar-thin">
+                    <table className="w-full text-xs text-left">
+                      <thead className="sticky top-0 bg-surface-paper z-10">
+                        <tr className="border-b border-border-subtle text-text-muted font-label-sm uppercase">
+                          <th className="py-2 px-3">SKU</th>
+                          <th className="py-2 px-3">Product Name</th>
+                          <th className="py-2 px-3">Hub Location</th>
+                          <th className="py-2 px-3 text-right">Current Stock</th>
+                          <th className="py-2 px-3 text-right">Safety Buffer</th>
+                          <th className="py-2 px-3 text-right">Reorder Point</th>
+                          <th className="py-2 px-3 text-right">Supply Horizon</th>
+                          <th className="py-2 px-3 text-center">Status</th>
+                          <th className="py-2 px-3 text-right">Action</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-border-subtle font-body-md">
+                        {filteredInventory.length === 0 ? (
+                          <tr>
+                            <td colSpan={9} className="py-8 text-center text-text-muted font-mono">
+                              No inventory items found matching selected filter criteria.
                             </td>
                           </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
+                        ) : (
+                          filteredInventory.slice(0, 100).map((item) => (
+                            <tr key={item.id} className="hover:bg-neutral-50/80 transition-colors">
+                              <td className="py-3 px-3 font-mono text-text-muted font-bold">{item.sku}</td>
+                              <td className="py-3 px-3">
+                                <span className="font-bold text-primary block">{item.name}</span>
+                                <span className="text-[10px] text-text-muted font-mono">{item.subcategory}</span>
+                              </td>
+                              <td className="py-3 px-3 font-mono text-text-muted text-[11px]">
+                                {item.hub}
+                              </td>
+                              <td className="py-3 px-3 text-right font-mono font-bold text-primary">
+                                {item.currentStock} Units
+                              </td>
+                              <td className="py-3 px-3 text-right font-mono text-emerald-700 font-bold">
+                                {item.safetyStock} Units
+                              </td>
+                              <td className="py-3 px-3 text-right font-mono text-amber-700 font-bold">
+                                {item.reorderPoint} Units
+                              </td>
+                              <td className="py-3 px-3 text-right font-mono text-text-muted">
+                                {item.daysOfSupply} Days
+                              </td>
+                              <td className="py-3 px-3 text-center">
+                                {item.isLow ? (
+                                  <span className="text-[10px] bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.5 font-mono font-bold">
+                                    REORDER REQ
+                                  </span>
+                                ) : (
+                                  <span className="text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 font-mono">
+                                    OPTIMAL
+                                  </span>
+                                )}
+                              </td>
+                              <td className="py-3 px-3 text-right">
+                                <button
+                                  onClick={() => {
+                                    setPoModalItem(item);
+                                    setPoSuccess(false);
+                                  }}
+                                  className={`px-3 py-1 text-xs font-body-md transition-colors cursor-pointer ${
+                                    item.isLow
+                                      ? "bg-primary text-on-primary hover:bg-neutral-800 font-bold"
+                                      : "bg-surface text-text-muted border border-border-subtle hover:text-primary"
+                                  }`}
+                                >
+                                  {item.isLow ? "Auto-Generate PO" : "Details"}
+                                </button>
+                              </td>
+                            </tr>
+                          ))
+                        )}
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          )}
+              </motion.div>
+            );
+          })()}
 
           {/* TAB 4: RECOMMENDATION ANALYTICS */}
           {activeTab === "recommendations" && (
@@ -1920,7 +2057,7 @@ export default function RetailerCommandCenter({
             >
               <button
                 onClick={() => setPoModalItem(null)}
-                className="absolute top-4 right-4 text-text-muted hover:text-primary cursor-pointer"
+                className="absolute top-4 right-4 text-text-muted hover:text-primary cursor-pointer text-sm"
               >
                 ✕
               </button>
@@ -1929,14 +2066,14 @@ export default function RetailerCommandCenter({
                 Automated Restock Purchase Order
               </h3>
               <p className="font-body-md text-xs text-text-muted mb-4">
-                Dispatch automated PO to manufacturer for <span className="font-bold text-primary">{poModalItem.name}</span> ({poModalItem.sku}).
+                Dispatch automated PO to supplier <strong className="text-primary">{poModalItem.supplierId}</strong> for <span className="font-bold text-primary">{poModalItem.name}</span> ({poModalItem.sku}).
               </p>
 
               {poSuccess ? (
                 <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-900 text-xs font-mono text-center space-y-2">
                   <span className="material-symbols-outlined text-2xl text-emerald-600">check_circle</span>
                   <p className="font-bold">Purchase Order Dispatched!</p>
-                  <p className="text-[11px]">PO #PO-99120 confirmed by Supplier Node. ETA: 3 Days.</p>
+                  <p className="text-[11px]">PO #PO-{poModalItem.sku.replace('-', '')} confirmed by Supplier {poModalItem.supplierId}. ETA: {poModalItem.leadTimeDays} Days.</p>
                   <button
                     onClick={() => setPoModalItem(null)}
                     className="mt-2 bg-emerald-900 text-white px-4 py-1.5 text-xs font-body-md cursor-pointer"
@@ -1946,12 +2083,18 @@ export default function RetailerCommandCenter({
                 </div>
               ) : (
                 <div className="space-y-4">
-                  <div className="p-3 bg-surface-paper border border-border-subtle text-xs font-mono space-y-1">
-                    <p>Item: {poModalItem.name}</p>
-                    <p>Current Stock: {poModalItem.stockQty} Units</p>
-                    <p>Recommended Restock Batch: 50 Units</p>
-                    <p>Unit Cost: ${(poModalItem.price * 0.35).toFixed(2)}</p>
-                    <p className="font-bold text-primary">Total PO Value: ${(poModalItem.price * 0.35 * 50).toFixed(2)}</p>
+                  <div className="p-3 bg-surface-paper border border-border-subtle text-xs font-mono space-y-1.5">
+                    <p className="flex justify-between"><span className="text-text-muted">Item:</span> <strong className="text-primary">{poModalItem.name}</strong></p>
+                    <p className="flex justify-between"><span className="text-text-muted">SKU / Supplier:</span> <strong className="text-primary">{poModalItem.sku} / {poModalItem.supplierId}</strong></p>
+                    <p className="flex justify-between"><span className="text-text-muted">Fulfillment Hub:</span> <strong className="text-primary">{poModalItem.hub}</strong></p>
+                    <p className="flex justify-between"><span className="text-text-muted">Current Stock:</span> <strong className="text-rose-600">{poModalItem.currentStock} Units</strong></p>
+                    <p className="flex justify-between"><span className="text-text-muted">Safety Buffer Target:</span> <strong className="text-emerald-600">{poModalItem.safetyStock} Units</strong></p>
+                    <p className="flex justify-between"><span className="text-text-muted">Reorder Quantity:</span> <strong className="text-primary">{poModalItem.reorderQty} Units</strong></p>
+                    <p className="flex justify-between"><span className="text-text-muted">Unit Production Cost:</span> <strong className="text-primary">${poModalItem.productionCost.toFixed(2)}</strong></p>
+                    <div className="pt-2 border-t border-border-subtle flex justify-between font-bold text-sm text-primary">
+                      <span>Total PO Value:</span>
+                      <span className="text-emerald-600">${(poModalItem.reorderQty * poModalItem.productionCost).toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                    </div>
                   </div>
 
                   <button
