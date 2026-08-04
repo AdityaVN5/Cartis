@@ -4,7 +4,7 @@ export interface Product {
   id: string;
   sku: string;
   name: string;
-  category: "Outerwear" | "Footwear" | "Tailored Essentials" | "Tech Accessories";
+  category: "Feminine" | "Masculine" | "Children" | "Outerwear" | "Footwear" | "Tailored Essentials" | "Tech Accessories" | string;
   price: number;
   originalPrice?: number;
   rating: number;

@@ -352,6 +352,9 @@ export default function CustomerShopView({
                     src={product.image}
                     alt={product.name}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    onError={(e) => {
+                      e.currentTarget.src = "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=600&auto=format&fit=crop";
+                    }}
                   />
                   <span className="absolute top-2 left-2 bg-black/85 text-white text-[10px] font-mono px-2 py-0.5 font-bold">
                     {matchScore}% MATCH
@@ -501,6 +504,9 @@ export default function CustomerShopView({
                       alt={prod.name}
                       referrerPolicy="no-referrer"
                       className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-500"
+                      onError={(e) => {
+                        e.currentTarget.src = "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=600&auto=format&fit=crop";
+                      }}
                     />
 
                     {/* Tag Badge */}
@@ -659,6 +665,9 @@ export default function CustomerShopView({
                       alt={selectedProduct.name}
                       referrerPolicy="no-referrer"
                       className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=600&auto=format&fit=crop";
+                      }}
                     />
                   </div>
                   <div className="flex items-center gap-2">
@@ -669,6 +678,9 @@ export default function CustomerShopView({
                         alt="thumbnail"
                         referrerPolicy="no-referrer"
                         className="w-16 h-20 object-cover border border-border-subtle cursor-pointer hover:opacity-80"
+                        onError={(e) => {
+                          e.currentTarget.src = "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=600&auto=format&fit=crop";
+                        }}
                       />
                     ))}
                   </div>
@@ -866,6 +878,9 @@ export default function CustomerShopView({
                               alt={simProd.name}
                               referrerPolicy="no-referrer"
                               className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                              onError={(e) => {
+                                e.currentTarget.src = "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?q=80&w=600&auto=format&fit=crop";
+                              }}
                             />
                             <span className="absolute top-1.5 right-1.5 bg-black text-white text-[9px] font-mono px-1.5 py-0.5 font-semibold">
                               {simProd.aiDemandMatchScore}% MATCH
