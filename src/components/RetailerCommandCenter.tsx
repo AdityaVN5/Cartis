@@ -19,6 +19,11 @@ import {
   Legend,
 } from "recharts";
 import { SAMPLE_PRODUCTS } from "../data/products";
+import {
+  FORECAST_DAILY_SERIES,
+  FORECAST_TABLE_DATA,
+  ForecastRow
+} from "../data/forecastData";
 
 export type CommandTab =
   | "dashboard"
@@ -103,165 +108,7 @@ const REVENUE_BY_COUNTRY = [
   { country: "UK", revenue: 17399354, share: "2.4%" },
 ];
 
-const FORECAST_BAND_DATA = [
-  { date: "Aug 01", historicalSales: 4200, forecastDemand: 4300, upperBand: 4600, lowerBand: 4000 },
-  { date: "Aug 02", historicalSales: 4400, forecastDemand: 4500, upperBand: 4850, lowerBand: 4150 },
-  { date: "Aug 03", historicalSales: 4100, forecastDemand: 4700, upperBand: 5100, lowerBand: 4300 },
-  { date: "Aug 04", historicalSales: 4800, forecastDemand: 5100, upperBand: 5500, lowerBand: 4700 },
-  { date: "Aug 05", historicalSales: 5200, forecastDemand: 5400, upperBand: 5900, lowerBand: 4900 },
-  { date: "Aug 06 (FC)", historicalSales: null, forecastDemand: 5800, upperBand: 6300, lowerBand: 5300 },
-  { date: "Aug 07 (FC)", historicalSales: null, forecastDemand: 6200, upperBand: 6800, lowerBand: 5600 },
-  { date: "Aug 08 (FC)", historicalSales: null, forecastDemand: 6500, upperBand: 7100, lowerBand: 5900 },
-  { date: "Aug 09 (FC)", historicalSales: null, forecastDemand: 6100, upperBand: 6700, lowerBand: 5500 },
-  { date: "Aug 10 (FC)", historicalSales: null, forecastDemand: 6400, upperBand: 7000, lowerBand: 5800 },
-];
-
-export interface ForecastRow {
-  id: string;
-  date: string;
-  product: string;
-  category: string;
-  subcategory: string;
-  store: string;
-  country: string;
-  quantity: number;
-  unitPrice: number;
-  lineTotal: number;
-  trend: "Up" | "Down" | "Stable";
-}
-
-const FORECAST_TABLE_DATA: ForecastRow[] = [
-  {
-    id: "f-101",
-    date: "2026-08-05",
-    product: "Cartis Modular Trench Parka",
-    category: "Outerwear",
-    subcategory: "Parkas & Jackets",
-    store: "Tokyo Ginza Flagship",
-    country: "Japan",
-    quantity: 140,
-    unitPrice: 480,
-    lineTotal: 67200,
-    trend: "Up",
-  },
-  {
-    id: "f-102",
-    date: "2026-08-05",
-    product: "NPU Cyber Runner Sneaker",
-    category: "Footwear",
-    subcategory: "Boots & Sneakers",
-    store: "New York Soho",
-    country: "USA",
-    quantity: 210,
-    unitPrice: 290,
-    lineTotal: 60900,
-    trend: "Up",
-  },
-  {
-    id: "f-103",
-    date: "2026-08-06",
-    product: "Archival Wool Structure Overshirt",
-    category: "Tailored Essentials",
-    subcategory: "Shirts & Blazers",
-    store: "London Mayfair",
-    country: "United Kingdom",
-    quantity: 95,
-    unitPrice: 340,
-    lineTotal: 32300,
-    trend: "Stable",
-  },
-  {
-    id: "f-104",
-    date: "2026-08-06",
-    product: "Tactical Matte Aluminum Backpack",
-    category: "Tech Accessories",
-    subcategory: "Bags & Accessories",
-    store: "Paris Le Marais",
-    country: "France",
-    quantity: 110,
-    unitPrice: 260,
-    lineTotal: 28600,
-    trend: "Up",
-  },
-  {
-    id: "f-105",
-    date: "2026-08-07",
-    product: "High-Derby Sculpted Leather Boot",
-    category: "Footwear",
-    subcategory: "Boots & Sneakers",
-    store: "Tokyo Ginza Flagship",
-    country: "Japan",
-    quantity: 85,
-    unitPrice: 380,
-    lineTotal: 32300,
-    trend: "Down",
-  },
-  {
-    id: "f-106",
-    date: "2026-08-07",
-    product: "Monolith Ceramic Tech Sunglasses",
-    category: "Tech Accessories",
-    subcategory: "Bags & Accessories",
-    store: "New York Soho",
-    country: "USA",
-    quantity: 180,
-    unitPrice: 210,
-    lineTotal: 37800,
-    trend: "Up",
-  },
-  {
-    id: "f-107",
-    date: "2026-08-08",
-    product: "Architectural Trench Coat",
-    category: "Outerwear",
-    subcategory: "Parkas & Jackets",
-    store: "Online Store",
-    country: "Germany",
-    quantity: 165,
-    unitPrice: 520,
-    lineTotal: 85800,
-    trend: "Up",
-  },
-  {
-    id: "f-108",
-    date: "2026-08-08",
-    product: "Minimalist Leather Travel Tote",
-    category: "Leather Goods",
-    subcategory: "Bags & Accessories",
-    store: "Paris Le Marais",
-    country: "France",
-    quantity: 70,
-    unitPrice: 450,
-    lineTotal: 31500,
-    trend: "Stable",
-  },
-  {
-    id: "f-109",
-    date: "2026-08-09",
-    product: "Kinetic Thermal Insulation Vest",
-    category: "Outerwear",
-    subcategory: "Parkas & Jackets",
-    store: "Tokyo Ginza Flagship",
-    country: "Japan",
-    quantity: 125,
-    unitPrice: 390,
-    lineTotal: 48750,
-    trend: "Up",
-  },
-  {
-    id: "f-110",
-    date: "2026-08-09",
-    product: "Seamless Technical Polo",
-    category: "Tailored Essentials",
-    subcategory: "Shirts & Blazers",
-    store: "New York Soho",
-    country: "USA",
-    quantity: 150,
-    unitPrice: 190,
-    lineTotal: 28500,
-    trend: "Stable",
-  },
-];
+// Forecast datasets imported from ../data/forecastData
 
 const RECOMMENDATION_PERFORMANCE = [
   { strategy: "Neural Stylist", ctr: 24.5, conversion: 12.8, revenue: 184000 },
@@ -382,6 +229,7 @@ export default function RetailerCommandCenter({
   setActiveTab,
 }: RetailerCommandCenterProps) {
   // Demand Forecasting Filter states
+  const [forecastHorizon, setForecastHorizon] = useState<number>(7);
   const [forecastCategory, setForecastCategory] = useState<string>("All");
   const [forecastSubcategory, setForecastSubcategory] = useState<string>("All");
   const [forecastStore, setForecastStore] = useState<string>("All");
@@ -794,8 +642,9 @@ export default function RetailerCommandCenter({
 
           {/* TAB 2: DEMAND FORECASTING */}
           {activeTab === "forecasting" && (() => {
-            // Calculate filtered data
+            // Filter matrix rows based on horizon and selected filters
             const filteredRows = FORECAST_TABLE_DATA.filter((row) => {
+              if (row.dayOffset !== undefined && row.dayOffset >= forecastHorizon) return false;
               if (forecastCategory !== "All" && row.category !== forecastCategory) return false;
               if (forecastSubcategory !== "All" && row.subcategory !== forecastSubcategory) return false;
               if (forecastStore !== "All" && row.store !== forecastStore) return false;
@@ -803,8 +652,15 @@ export default function RetailerCommandCenter({
               return true;
             });
 
+            // Filter daily chart series based on active horizon
+            const filteredChartData = FORECAST_DAILY_SERIES.filter((d) => d.dayOffset < forecastHorizon);
+
             const totalForecastQuantity = filteredRows.reduce((sum, r) => sum + r.quantity, 0);
             const totalExpectedRevenue = filteredRows.reduce((sum, r) => sum + r.lineTotal, 0);
+            const surgeCount = filteredRows.filter((r) => r.trend === "Up").length;
+            const dropCount = filteredRows.filter((r) => r.trend === "Down").length;
+            const netTrendPct = filteredRows.length > 0 ? (((surgeCount - dropCount) / filteredRows.length) * 100).toFixed(1) : "0.0";
+            const isBullish = parseFloat(netTrendPct) >= 0;
 
             return (
               <motion.div
@@ -814,21 +670,31 @@ export default function RetailerCommandCenter({
                 exit={{ opacity: 0, y: -10 }}
                 className="space-y-8"
               >
-                {/* Header */}
+                {/* Header & Horizon Selector */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-border-subtle">
                   <div>
                     <h2 className="font-headline-lg text-xl text-primary font-bold">
-                      Neural Demand Forecasting Engine
+                      Neural Demand Forecasting Engine (LightGBM)
                     </h2>
                     <p className="font-body-md text-xs text-text-muted">
-                      Predictive multi-variate modeling with historical baseline vs AI forecast & confidence bounds.
+                      Predictive multi-variate modeling with historical baseline vs AI forecast & LightGBM 95% confidence bounds (std_error = 0.4081).
                     </p>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-text-muted font-mono">Horizon:</span>
-                    <button className="bg-primary text-on-primary text-xs px-3 py-1 font-bold">7 Days</button>
-                    <button className="bg-surface text-text-muted border border-border-subtle text-xs px-3 py-1 hover:text-primary cursor-pointer">30 Days</button>
-                    <button className="bg-surface text-text-muted border border-border-subtle text-xs px-3 py-1 hover:text-primary cursor-pointer">90 Days</button>
+                  <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+                    <span className="text-xs text-text-muted font-mono mr-1">Horizon:</span>
+                    {[7, 15, 30, 60, 90].map((h) => (
+                      <button
+                        key={h}
+                        onClick={() => setForecastHorizon(h)}
+                        className={`text-xs px-3 py-1 transition-all cursor-pointer font-mono ${
+                          forecastHorizon === h
+                            ? "bg-primary text-on-primary font-bold shadow-xs"
+                            : "bg-surface text-text-muted border border-border-subtle hover:text-primary hover:border-neutral-400"
+                        }`}
+                      >
+                        {h} Days
+                      </button>
+                    ))}
                   </div>
                 </div>
 
@@ -864,11 +730,9 @@ export default function RetailerCommandCenter({
                         className="w-full bg-surface-paper border border-border-subtle px-3 py-2 rounded-none text-xs text-primary focus:outline-none focus:border-primary cursor-pointer"
                       >
                         <option value="All">All Categories</option>
-                        <option value="Outerwear">Outerwear</option>
-                        <option value="Footwear">Footwear</option>
-                        <option value="Tailored Essentials">Tailored Essentials</option>
-                        <option value="Tech Accessories">Tech Accessories</option>
-                        <option value="Leather Goods">Leather Goods</option>
+                        <option value="Feminine">Feminine</option>
+                        <option value="Masculine">Masculine</option>
+                        <option value="Children">Children</option>
                       </select>
                     </div>
 
@@ -881,10 +745,15 @@ export default function RetailerCommandCenter({
                         className="w-full bg-surface-paper border border-border-subtle px-3 py-2 rounded-none text-xs text-primary focus:outline-none focus:border-primary cursor-pointer"
                       >
                         <option value="All">All Subcategories</option>
-                        <option value="Parkas & Jackets">Parkas & Jackets</option>
-                        <option value="Boots & Sneakers">Boots & Sneakers</option>
-                        <option value="Shirts & Blazers">Shirts & Blazers</option>
-                        <option value="Bags & Accessories">Bags & Accessories</option>
+                        <option value="Coats and Blazers">Coats and Blazers</option>
+                        <option value="Sweaters and Knitwear">Sweaters and Knitwear</option>
+                        <option value="Dresses and Jumpsuits">Dresses and Jumpsuits</option>
+                        <option value="Suits and Blazers">Suits and Blazers</option>
+                        <option value="Sweaters and Sweatshirts">Sweaters and Sweatshirts</option>
+                        <option value="T-shirts and Polos">T-shirts and Polos</option>
+                        <option value="Accessories">Accessories</option>
+                        <option value="Girl and Boy">Girl and Boy</option>
+                        <option value="Baby">Baby</option>
                       </select>
                     </div>
 
@@ -897,11 +766,16 @@ export default function RetailerCommandCenter({
                         className="w-full bg-surface-paper border border-border-subtle px-3 py-2 rounded-none text-xs text-primary focus:outline-none focus:border-primary cursor-pointer"
                       >
                         <option value="All">All Stores</option>
-                        <option value="Tokyo Ginza Flagship">Tokyo Ginza Flagship</option>
+                        <option value="Shanghai Flagship">Shanghai Flagship</option>
+                        <option value="Guangzhou Store">Guangzhou Store</option>
+                        <option value="Shenzhen Store">Shenzhen Store</option>
+                        <option value="Beijing Store">Beijing Store</option>
+                        <option value="Chongqing Store">Chongqing Store</option>
                         <option value="New York Soho">New York Soho</option>
-                        <option value="London Mayfair">London Mayfair</option>
-                        <option value="Paris Le Marais">Paris Le Marais</option>
-                        <option value="Online Store">Online Store</option>
+                        <option value="Los Angeles Hub">Los Angeles Hub</option>
+                        <option value="Houston Store">Houston Store</option>
+                        <option value="Berlin Store">Berlin Store</option>
+                        <option value="Chicago Store">Chicago Store</option>
                       </select>
                     </div>
 
@@ -914,11 +788,13 @@ export default function RetailerCommandCenter({
                         className="w-full bg-surface-paper border border-border-subtle px-3 py-2 rounded-none text-xs text-primary focus:outline-none focus:border-primary cursor-pointer"
                       >
                         <option value="All">All Countries</option>
-                        <option value="USA">USA</option>
-                        <option value="Japan">Japan</option>
+                        <option value="China">China</option>
+                        <option value="United States">United States</option>
                         <option value="Germany">Germany</option>
-                        <option value="United Kingdom">United Kingdom</option>
                         <option value="France">France</option>
+                        <option value="Portugal">Portugal</option>
+                        <option value="Spain">Spain</option>
+                        <option value="United Kingdom">United Kingdom</option>
                       </select>
                     </div>
                   </div>
@@ -928,20 +804,20 @@ export default function RetailerCommandCenter({
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="bg-surface border border-border-subtle p-5 shadow-2xs">
                     <div className="flex items-center justify-between text-xs font-label-sm text-text-muted mb-2">
-                      <span>FORECASTED DEMAND</span>
+                      <span>FORECASTED DEMAND ({forecastHorizon}D)</span>
                       <span className="material-symbols-outlined text-sm text-primary">inventory</span>
                     </div>
                     <div className="font-headline-lg text-2xl font-bold text-primary">
                       {totalForecastQuantity.toLocaleString()} Units
                     </div>
                     <p className="font-body-md text-[11px] text-text-muted mt-2">
-                      Filtered prediction volume
+                      Filtered volume over {forecastHorizon} days
                     </p>
                   </div>
 
                   <div className="bg-surface border border-border-subtle p-5 shadow-2xs">
                     <div className="flex items-center justify-between text-xs font-label-sm text-text-muted mb-2">
-                      <span>EXPECTED REVENUE</span>
+                      <span>EXPECTED REVENUE ({forecastHorizon}D)</span>
                       <span className="material-symbols-outlined text-sm text-emerald-600">payments</span>
                     </div>
                     <div className="font-headline-lg text-2xl font-bold text-primary">
@@ -955,10 +831,12 @@ export default function RetailerCommandCenter({
                   <div className="bg-surface border border-border-subtle p-5 shadow-2xs">
                     <div className="flex items-center justify-between text-xs font-label-sm text-text-muted mb-2">
                       <span>TREND DIRECTION</span>
-                      <span className="material-symbols-outlined text-sm text-emerald-500">trending_up</span>
+                      <span className="material-symbols-outlined text-sm text-emerald-500">
+                        {isBullish ? "trending_up" : "trending_down"}
+                      </span>
                     </div>
-                    <div className="font-headline-lg text-2xl font-bold text-emerald-600 flex items-center gap-1">
-                      ↗ +14.8% <span className="text-xs text-text-muted font-normal">(Bullish)</span>
+                    <div className={`font-headline-lg text-2xl font-bold flex items-center gap-1 ${isBullish ? "text-emerald-600" : "text-rose-600"}`}>
+                      {isBullish ? "↗" : "↘"} {netTrendPct}% <span className="text-xs text-text-muted font-normal">({isBullish ? "Bullish" : "Softening"})</span>
                     </div>
                     <p className="font-body-md text-[11px] text-text-muted mt-2">
                       Category momentum surge
@@ -967,14 +845,14 @@ export default function RetailerCommandCenter({
 
                   <div className="bg-surface border border-border-subtle p-5 shadow-2xs">
                     <div className="flex items-center justify-between text-xs font-label-sm text-text-muted mb-2">
-                      <span>CONFIDENCE SCORE</span>
+                      <span>MODEL CONFIDENCE</span>
                       <span className="material-symbols-outlined text-sm text-blue-600">verified</span>
                     </div>
                     <div className="font-headline-lg text-2xl font-bold text-primary">
-                      96.4%
+                      96.8%
                     </div>
                     <p className="font-body-md text-[11px] text-text-muted mt-2">
-                      High Precision Neural Model
+                      LightGBM (RMSE: 0.4081)
                     </p>
                   </div>
                 </div>
@@ -984,30 +862,30 @@ export default function RetailerCommandCenter({
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-border-subtle">
                     <div>
                       <h3 className="font-headline-lg text-sm text-primary font-bold uppercase tracking-wider">
-                        Historical Sales vs. AI Forecast & Confidence Band
+                        Historical Sales vs. AI Forecast & Confidence Band ({forecastHorizon}-Day Horizon)
                       </h3>
                       <p className="font-body-md text-xs text-text-muted">
-                        Solid line represents actual historical units; dashed line represents AI forecast with upper/lower confidence bounds.
+                        Solid blue line: actual sales; Dashed black line: LightGBM forecast; Shaded green area: 95% Confidence Band (std_error = 0.4081).
                       </p>
                     </div>
                     <div className="flex items-center gap-4 text-xs font-mono">
                       <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-blue-600 inline-block"></span> Historical Sales</span>
-                      <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-black inline-block"></span> Forecast Demand</span>
-                      <span className="flex items-center gap-1.5"><span className="w-3 h-2 bg-emerald-500/30 inline-block"></span> Confidence Band</span>
+                      <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-black inline-block"></span> LightGBM Forecast</span>
+                      <span className="flex items-center gap-1.5"><span className="w-3 h-2 bg-emerald-500/30 inline-block"></span> 95% Confidence Band</span>
                     </div>
                   </div>
 
                   <div className="h-72 w-full">
                     <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={FORECAST_BAND_DATA}>
+                      <AreaChart data={filteredChartData}>
                         <CartesianGrid strokeDasharray="3 3" stroke="#eeeeee" />
                         <XAxis dataKey="date" stroke="#666" fontSize={11} />
                         <YAxis stroke="#666" fontSize={11} />
                         <Tooltip contentStyle={{ backgroundColor: "#000", color: "#fff", fontSize: "12px" }} />
-                        <Area type="monotone" dataKey="upperBand" stroke="transparent" fill="#10b981" fillOpacity={0.15} name="Upper Confidence" />
+                        <Area type="monotone" dataKey="upperBand" stroke="transparent" fill="#10b981" fillOpacity={0.18} name="Upper Confidence" />
                         <Area type="monotone" dataKey="lowerBand" stroke="transparent" fill="#ffffff" fillOpacity={1} name="Lower Confidence" />
-                        <Line type="monotone" dataKey="historicalSales" stroke="#2563eb" strokeWidth={2.5} dot={{ r: 4 }} name="Historical Sales" />
-                        <Line type="monotone" dataKey="forecastDemand" stroke="#000000" strokeWidth={2.5} strokeDasharray="4 4" dot={{ r: 4 }} name="Forecasted Demand" />
+                        <Line type="monotone" dataKey="historicalSales" stroke="#2563eb" strokeWidth={2.5} dot={{ r: 3 }} name="Historical Sales" />
+                        <Line type="monotone" dataKey="forecastDemand" stroke="#000000" strokeWidth={2.5} strokeDasharray="4 4" dot={{ r: 3 }} name="Forecasted Demand" />
                       </AreaChart>
                     </ResponsiveContainer>
                   </div>
@@ -1017,10 +895,10 @@ export default function RetailerCommandCenter({
                 <div className="bg-surface border border-border-subtle p-6 space-y-4 shadow-2xs">
                   <div className="flex items-center justify-between pb-3 border-b border-border-subtle">
                     <h3 className="font-headline-lg text-sm text-primary font-bold uppercase tracking-wider">
-                      Forecast Data Matrix ({filteredRows.length} Line Items)
+                      Forecast Data Matrix ({filteredRows.length} Line Items - {forecastHorizon}D Horizon)
                     </h3>
                     <span className="text-xs font-mono text-text-muted">
-                      Columns: Date, Product, Category, Quantity, Line Total
+                      Columns: Date, Product, Category, Store / Country, Quantity, Line Total, Trend
                     </span>
                   </div>
 
@@ -1041,7 +919,7 @@ export default function RetailerCommandCenter({
                         {filteredRows.length === 0 ? (
                           <tr>
                             <td colSpan={7} className="py-8 text-center text-text-muted font-mono">
-                              No forecast items found for selected filter criteria.
+                              No forecast items found for selected filter criteria across the {forecastHorizon}-day horizon.
                             </td>
                           </tr>
                         ) : (
