@@ -979,19 +979,21 @@ export default function RetailerCommandCenter({
 
           {/* TAB 3: INVENTORY OPTIMIZATION */}
           {activeTab === "inventory" && (() => {
-            // Filter inventory items based on Hub, Status, Category, and Search query
-            const filteredInventory = INVENTORY_ITEMS.filter((item) => {
+            // Filter inventory items based on Hub, Status, Category, and Search query safely
+            const safeInventoryItems = INVENTORY_ITEMS || [];
+            const filteredInventory = safeInventoryItems.filter((item) => {
+              if (!item) return false;
               if (inventoryHubFilter !== "All" && item.hub !== inventoryHubFilter) return false;
               if (inventoryStatusFilter === "Critical" && !item.isLow) return false;
               if (inventoryStatusFilter === "Healthy" && item.isLow) return false;
               if (inventoryCategoryFilter !== "All" && item.category !== inventoryCategoryFilter) return false;
-              if (
-                inventorySearchQuery.trim() !== "" &&
-                !item.sku.toLowerCase().includes(inventorySearchQuery.toLowerCase()) &&
-                !item.name.toLowerCase().includes(inventorySearchQuery.toLowerCase()) &&
-                !item.subcategory.toLowerCase().includes(inventorySearchQuery.toLowerCase())
-              ) {
-                return false;
+              
+              if (inventorySearchQuery && inventorySearchQuery.trim() !== "") {
+                const q = inventorySearchQuery.toLowerCase();
+                const matchSku = item.sku ? String(item.sku).toLowerCase().includes(q) : false;
+                const matchName = item.name ? String(item.name).toLowerCase().includes(q) : false;
+                const matchSub = item.subcategory ? String(item.subcategory).toLowerCase().includes(q) : false;
+                if (!matchSku && !matchName && !matchSub) return false;
               }
               return true;
             });
@@ -1011,31 +1013,43 @@ export default function RetailerCommandCenter({
                       Multi-Warehouse Inventory Optimization & Safety Buffer Stock
                     </h2>
                     <p className="font-body-md text-xs text-text-muted">
-                      Automated buffer stock calculations ($z \times \sigma_d \times \sqrt{L}$) and purchase order generation across regional fulfillment hubs.
+                      Automated buffer stock calculations (z × σ_d × √LeadTime) and purchase order generation across regional fulfillment hubs.
                     </p>
                   </div>
 
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-emerald-600 font-mono font-bold flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 px-3 py-1">
                       <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                      944 SKUs SYNCED WITH FULFILLMENT HUBS
+                      {safeInventoryItems.length} SKUs SYNCED WITH FULFILLMENT HUBS
                     </span>
                   </div>
                 </div>
 
                 {/* Warehouse Regional Stocks (Clickable Hub Cards) */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {INVENTORY_HUBS.map((hub) => {
-                    const isSelected = inventoryHubFilter === hub.name || (inventoryHubFilter === "Warehouse Alpha (Tokyo)" && hub.name.includes("TOKYO")) || (inventoryHubFilter === "Warehouse Beta (Frankfurt)" && hub.name.includes("FRANKFURT")) || (inventoryHubFilter === "Warehouse Gamma (New York)" && hub.name.includes("NEW YORK"));
-                    const targetHubLabel = hub.name.includes("TOKYO")
+                  {(INVENTORY_HUBS || []).map((hub) => {
+                    if (!hub) return null;
+                    const hubName = hub.name || "";
+                    const capacityPct = hub.capacityPct ?? 80;
+                    const totalUnits = hub.totalUnits ?? 0;
+                    const safetyBufferUnits = hub.safetyBufferUnits ?? 0;
+                    const criticalSkus = hub.criticalSkus ?? 0;
+
+                    const isSelected =
+                      inventoryHubFilter === hubName ||
+                      (inventoryHubFilter === "Warehouse Alpha (Tokyo)" && hubName.includes("TOKYO")) ||
+                      (inventoryHubFilter === "Warehouse Beta (Frankfurt)" && hubName.includes("FRANKFURT")) ||
+                      (inventoryHubFilter === "Warehouse Gamma (New York)" && hubName.includes("NEW YORK"));
+
+                    const targetHubLabel = hubName.includes("TOKYO")
                       ? "Warehouse Alpha (Tokyo)"
-                      : hub.name.includes("FRANKFURT")
+                      : hubName.includes("FRANKFURT")
                       ? "Warehouse Beta (Frankfurt)"
                       : "Warehouse Gamma (New York)";
 
                     return (
                       <div
-                        key={hub.name}
+                        key={hubName}
                         onClick={() => setInventoryHubFilter(isSelected ? "All" : targetHubLabel)}
                         className={`bg-surface border p-5 cursor-pointer transition-all ${
                           isSelected
@@ -1044,20 +1058,20 @@ export default function RetailerCommandCenter({
                         }`}
                       >
                         <div className="flex items-center justify-between text-xs font-label-sm text-text-muted mb-2">
-                          <span className="font-bold text-primary">{hub.name}</span>
-                          <span className={`font-mono font-bold ${hub.capacityPct > 90 ? "text-amber-600" : "text-emerald-600"}`}>
-                            {hub.capacityPct}% CAP
+                          <span className="font-bold text-primary">{hubName}</span>
+                          <span className={`font-mono font-bold ${capacityPct > 90 ? "text-amber-600" : "text-emerald-600"}`}>
+                            {capacityPct}% CAP
                           </span>
                         </div>
                         <div className="font-headline-lg text-2xl font-bold text-primary">
-                          {hub.totalUnits.toLocaleString()} Units
+                          {totalUnits.toLocaleString()} Units
                         </div>
                         <div className="mt-3 pt-2 border-t border-border-subtle text-[11px] font-mono flex items-center justify-between">
                           <span className="text-text-muted">
-                            Safety Buffer: <strong className="text-primary">{hub.safetyBufferUnits.toLocaleString()}</strong>
+                            Safety Buffer: <strong className="text-primary">{safetyBufferUnits.toLocaleString()}</strong>
                           </span>
-                          <span className={hub.criticalSkus > 0 ? "text-rose-600 font-bold" : "text-emerald-600"}>
-                            {hub.criticalSkus} Critical SKUs
+                          <span className={criticalSkus > 0 ? "text-rose-600 font-bold" : "text-emerald-600"}>
+                            {criticalSkus} Critical SKUs
                           </span>
                         </div>
                       </div>
@@ -1180,56 +1194,69 @@ export default function RetailerCommandCenter({
                             </td>
                           </tr>
                         ) : (
-                          filteredInventory.slice(0, 100).map((item) => (
-                            <tr key={item.id} className="hover:bg-neutral-50/80 transition-colors">
-                              <td className="py-3 px-3 font-mono text-text-muted font-bold">{item.sku}</td>
-                              <td className="py-3 px-3">
-                                <span className="font-bold text-primary block">{item.name}</span>
-                                <span className="text-[10px] text-text-muted font-mono">{item.subcategory}</span>
-                              </td>
-                              <td className="py-3 px-3 font-mono text-text-muted text-[11px]">
-                                {item.hub}
-                              </td>
-                              <td className="py-3 px-3 text-right font-mono font-bold text-primary">
-                                {item.currentStock} Units
-                              </td>
-                              <td className="py-3 px-3 text-right font-mono text-emerald-700 font-bold">
-                                {item.safetyStock} Units
-                              </td>
-                              <td className="py-3 px-3 text-right font-mono text-amber-700 font-bold">
-                                {item.reorderPoint} Units
-                              </td>
-                              <td className="py-3 px-3 text-right font-mono text-text-muted">
-                                {item.daysOfSupply} Days
-                              </td>
-                              <td className="py-3 px-3 text-center">
-                                {item.isLow ? (
-                                  <span className="text-[10px] bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.5 font-mono font-bold">
-                                    REORDER REQ
-                                  </span>
-                                ) : (
-                                  <span className="text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 font-mono">
-                                    OPTIMAL
-                                  </span>
-                                )}
-                              </td>
-                              <td className="py-3 px-3 text-right">
-                                <button
-                                  onClick={() => {
-                                    setPoModalItem(item);
-                                    setPoSuccess(false);
-                                  }}
-                                  className={`px-3 py-1 text-xs font-body-md transition-colors cursor-pointer ${
-                                    item.isLow
-                                      ? "bg-primary text-on-primary hover:bg-neutral-800 font-bold"
-                                      : "bg-surface text-text-muted border border-border-subtle hover:text-primary"
-                                  }`}
-                                >
-                                  {item.isLow ? "Auto-Generate PO" : "Details"}
-                                </button>
-                              </td>
-                            </tr>
-                          ))
+                          filteredInventory.slice(0, 100).map((item) => {
+                            if (!item) return null;
+                            const sku = item.sku || "N/A";
+                            const name = item.name || "Item";
+                            const subcategory = item.subcategory || "";
+                            const hub = item.hub || "";
+                            const currentStock = item.currentStock ?? 0;
+                            const safetyStock = item.safetyStock ?? 0;
+                            const reorderPoint = item.reorderPoint ?? 0;
+                            const daysOfSupply = item.daysOfSupply ?? 0;
+                            const isLow = !!item.isLow;
+
+                            return (
+                              <tr key={item.id} className="hover:bg-neutral-50/80 transition-colors">
+                                <td className="py-3 px-3 font-mono text-text-muted font-bold">{sku}</td>
+                                <td className="py-3 px-3">
+                                  <span className="font-bold text-primary block">{name}</span>
+                                  <span className="text-[10px] text-text-muted font-mono">{subcategory}</span>
+                                </td>
+                                <td className="py-3 px-3 font-mono text-text-muted text-[11px]">
+                                  {hub}
+                                </td>
+                                <td className="py-3 px-3 text-right font-mono font-bold text-primary">
+                                  {currentStock} Units
+                                </td>
+                                <td className="py-3 px-3 text-right font-mono text-emerald-700 font-bold">
+                                  {safetyStock} Units
+                                </td>
+                                <td className="py-3 px-3 text-right font-mono text-amber-700 font-bold">
+                                  {reorderPoint} Units
+                                </td>
+                                <td className="py-3 px-3 text-right font-mono text-text-muted">
+                                  {daysOfSupply} Days
+                                </td>
+                                <td className="py-3 px-3 text-center">
+                                  {isLow ? (
+                                    <span className="text-[10px] bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.5 font-mono font-bold">
+                                      REORDER REQ
+                                    </span>
+                                  ) : (
+                                    <span className="text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 font-mono">
+                                      OPTIMAL
+                                    </span>
+                                  )}
+                                </td>
+                                <td className="py-3 px-3 text-right">
+                                  <button
+                                    onClick={() => {
+                                      setPoModalItem(item);
+                                      setPoSuccess(false);
+                                    }}
+                                    className={`px-3 py-1 text-xs font-body-md transition-colors cursor-pointer ${
+                                      isLow
+                                        ? "bg-primary text-on-primary hover:bg-neutral-800 font-bold"
+                                        : "bg-surface text-text-muted border border-border-subtle hover:text-primary"
+                                    }`}
+                                  >
+                                    {isLow ? "Auto-Generate PO" : "Details"}
+                                  </button>
+                                </td>
+                              </tr>
+                            );
+                          })
                         )}
                       </tbody>
                     </table>
