@@ -37,10 +37,9 @@ export default function Navigation({
 
   const customerNavItems = [
     { id: "shop-all", label: "Shop All", cat: "All" },
-    { id: "outerwear", label: "Outerwear", cat: "Outerwear" },
-    { id: "footwear", label: "Footwear", cat: "Footwear" },
-    { id: "tailored", label: "Tailored", cat: "Tailored Essentials" },
-    { id: "tech", label: "Tech Accessories", cat: "Tech Accessories" },
+    { id: "feminine", label: "Feminine", cat: "Feminine" },
+    { id: "masculine", label: "Masculine", cat: "Masculine" },
+    { id: "children", label: "Children", cat: "Children" },
   ];
 
   const handleLogoClick = () => {

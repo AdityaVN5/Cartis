@@ -325,8 +325,24 @@ const INITIAL_SESSIONS: ChatSession[] = [
 ];
 
 export default function CopilotInterface({ onClose }: CopilotInterfaceProps) {
-  const [sessions, setSessions] = useState<ChatSession[]>(INITIAL_SESSIONS);
-  const [activeSessionId, setActiveSessionId] = useState<string>("sess-1");
+  const [sessions, setSessions] = useState<ChatSession[]>(() => {
+    const saved = localStorage.getItem("cartis_copilot_sessions");
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return parsed;
+        }
+      } catch (e) {
+        // Fallback
+      }
+    }
+    return INITIAL_SESSIONS;
+  });
+  const [activeSessionId, setActiveSessionId] = useState<string>(() => {
+    const savedId = localStorage.getItem("cartis_copilot_active_session_id");
+    return savedId || "sess-1";
+  });
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -336,6 +352,14 @@ export default function CopilotInterface({ onClose }: CopilotInterfaceProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const activeSession = sessions.find((s) => s.id === activeSessionId) || sessions[0];
+
+  useEffect(() => {
+    localStorage.setItem("cartis_copilot_sessions", JSON.stringify(sessions));
+  }, [sessions]);
+
+  useEffect(() => {
+    localStorage.setItem("cartis_copilot_active_session_id", activeSessionId);
+  }, [activeSessionId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
