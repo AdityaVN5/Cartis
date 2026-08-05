@@ -472,9 +472,9 @@ export default function RetailerCommandCenter({
                     <span>NET REVENUE</span>
                     <span className="text-emerald-600 font-mono font-bold">+17.8%</span>
                   </div>
-                  <div className="font-headline-lg text-lg font-bold text-primary">$732,744,875</div>
+                  <div className="font-headline-lg text-lg font-bold text-primary">$732,744,960</div>
                   <p className="font-body-md text-[10px] text-text-muted mt-1.5">
-                    Net after returns ($43.3M)
+                    Net after returns & discounts
                   </p>
                 </div>
 
@@ -484,7 +484,7 @@ export default function RetailerCommandCenter({
                     <span>GROSS REVENUE</span>
                     <span className="text-emerald-600 font-mono font-bold">+18.4%</span>
                   </div>
-                  <div className="font-headline-lg text-lg font-bold text-primary">$776,060,523</div>
+                  <div className="font-headline-lg text-lg font-bold text-primary">$885,866,176</div>
                   <p className="font-body-md text-[10px] text-text-muted mt-1.5">
                     Total gross sales volume
                   </p>
@@ -494,9 +494,9 @@ export default function RetailerCommandCenter({
                 <div className="bg-surface border border-border-subtle p-4 shadow-2xs">
                   <div className="flex items-center justify-between text-[11px] font-label-sm text-text-muted mb-1">
                     <span>TOTAL GROSS</span>
-                    <span className="text-emerald-600 font-mono font-bold">83.3% Margin</span>
+                    <span className="text-emerald-600 font-mono font-bold">92.5% Margin</span>
                   </div>
-                  <div className="font-headline-lg text-lg font-bold text-primary">$610,372,053</div>
+                  <div className="font-headline-lg text-lg font-bold text-primary">$819,376,320</div>
                   <p className="font-body-md text-[10px] text-text-muted mt-1.5">
                     Gross profit contribution
                   </p>
@@ -506,11 +506,11 @@ export default function RetailerCommandCenter({
                 <div className="bg-surface border border-border-subtle p-4 shadow-2xs">
                   <div className="flex items-center justify-between text-[11px] font-label-sm text-text-muted mb-1">
                     <span>RETURN RATE %</span>
-                    <span className="text-emerald-600 font-mono font-bold">-0.4% YoY</span>
+                    <span className="text-emerald-600 font-mono font-bold">5.58% Rev</span>
                   </div>
                   <div className="font-headline-lg text-lg font-bold text-rose-600">5.59%</div>
                   <p className="font-body-md text-[10px] text-text-muted mt-1.5">
-                    373,947 units returned
+                    By units (5.58% by revenue)
                   </p>
                 </div>
 
@@ -522,7 +522,7 @@ export default function RetailerCommandCenter({
                   </div>
                   <div className="font-headline-lg text-lg font-bold text-primary">6,312,177</div>
                   <p className="font-body-md text-[10px] text-text-muted mt-1.5">
-                    6.68M gross units
+                    Retained by customers
                   </p>
                 </div>
 
@@ -534,7 +534,7 @@ export default function RetailerCommandCenter({
                   </div>
                   <div className="font-headline-lg text-lg font-bold text-primary">$168.94</div>
                   <p className="font-body-md text-[10px] text-text-muted mt-1.5">
-                    From 4,337,270 invoices
+                    Average transaction size
                   </p>
                 </div>
 
@@ -546,7 +546,7 @@ export default function RetailerCommandCenter({
                   </div>
                   <div className="font-headline-lg text-lg font-bold text-primary">1,283,707</div>
                   <p className="font-body-md text-[10px] text-text-muted mt-1.5">
-                    Distinct active accounts
+                    Distinct active buyers
                   </p>
                 </div>
 
@@ -556,9 +556,9 @@ export default function RetailerCommandCenter({
                     <span>REV PER EMPLOYEE</span>
                     <span className="text-emerald-600 font-mono font-bold">+9.6%</span>
                   </div>
-                  <div className="font-headline-lg text-lg font-bold text-primary">$2,450,652</div>
+                  <div className="font-headline-lg text-lg font-bold text-primary">$1,813,725</div>
                   <p className="font-body-md text-[10px] text-text-muted mt-1.5">
-                    299 total store staff
+                    404 total workforce
                   </p>
                 </div>
 
@@ -1493,22 +1493,87 @@ export default function RetailerCommandCenter({
                 </div>
               </div>
 
-              {/* Logs Stream */}
+              {/* Agent Evaluation Section */}
+              <div className="bg-surface border border-border-subtle p-6 space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-border-subtle">
+                  <div>
+                    <h3 className="font-headline-lg text-sm text-primary font-bold uppercase tracking-wider flex items-center gap-2">
+                      <span className="material-symbols-outlined text-sm">precision_manufacturing</span>
+                      Agent Intent & Reasoning Evaluation
+                    </h3>
+                    <p className="font-body-md text-xs text-text-muted">
+                      Diagnostic runs of multi-agent intent classifiers and response reasoning scores.
+                    </p>
+                  </div>
 
-              <div className="bg-black text-white p-6 font-mono text-xs border border-neutral-800 space-y-3">
-                <div className="flex items-center justify-between text-neutral-400 border-b border-neutral-800 pb-2">
-                  <span>ML SYSTEM TELEMETRY LOGS</span>
-                  <span>NODE: US-EAST-1 / ASIA-EAST-1</span>
+                  <div className="flex gap-4">
+                    <div className="bg-surface-paper border border-border-subtle px-4 py-2 font-mono">
+                      <span className="text-[10px] text-text-muted block">AVG AGENT SCORE</span>
+                      <strong className="text-sm font-bold text-primary">3.0 / 5.0</strong>
+                    </div>
+                    <div className="bg-surface-paper border border-border-subtle px-4 py-2 font-mono">
+                      <span className="text-[10px] text-text-muted block">INTENT ACCURACY</span>
+                      <strong className="text-sm font-bold text-amber-600">60.0%</strong>
+                    </div>
+                  </div>
                 </div>
 
-                <div className="space-y-1 max-h-48 overflow-y-auto">
-                  <p className="text-emerald-400">[02:29:10] Syncing batch embeddings across 12 distributed Edge workers...</p>
-                  <p className="text-neutral-300">[02:29:12] Inference Server warm start completed. CPU utilization: 14.2%</p>
-                  {retrainLogs.map((log, i) => (
-                    <p key={i} className="text-amber-300">
-                      {log}
-                    </p>
-                  ))}
+                <div className="overflow-x-auto">
+                  <table className="w-full text-xs text-left">
+                    <thead>
+                      <tr className="border-b border-border-subtle text-text-muted font-label-sm uppercase bg-surface-paper">
+                        <th className="py-2.5 px-3">Test Query</th>
+                        <th className="py-2.5 px-3">Expected Intent</th>
+                        <th className="py-2.5 px-3">Actual Intent</th>
+                        <th className="py-2.5 px-3 text-center">Score</th>
+                        <th className="py-2.5 px-3">Reasoning</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-border-subtle font-body-md text-[11px]">
+                      {[
+                        {
+                          query: "What is the status of my last order?",
+                          exp: "customer_service_agent",
+                          act: "customer_service_agent",
+                          score: 5,
+                          reasoning: "The response directly answers the user's query by providing specific, detailed information about their most recent order (date, store, order ID, item, quantity, amount, transaction type) and its current status (completed, no returns). It is helpful, professional in tone, and grounded in what appears to be actual order data. It also proactively offers further assistance."
+                        },
+                        {
+                          query: "I need some blue summer dresses for a wedding",
+                          exp: "search_agent",
+                          act: "customer_service_agent",
+                          score: 3,
+                          reasoning: "The response correctly references the user's order history and identifies preferences (fringes, fabrics, sizing), but it fails to provide any actual blue summer dress recommendations from current inventory. Instead, it passively directs the user to browse the collection themselves. It is grounded in the provided data and not hallucinated, but lacks actionable product suggestions for the specific query."
+                        },
+                        {
+                          query: "Which stores in the US have the highest revenue this month?",
+                          exp: "executive_insights_agent",
+                          act: "inventory_agent",
+                          score: 1,
+                          reasoning: "The response fails to answer the user's question. Instead of providing the list of highest-revenue stores (or a natural language explanation of the result), it outputs a technical error log ('Data Retrieval Failure', 'Parser Error') and raw SQL code. This is irrelevant and unhelpful for a business user asking a straightforward analytical question."
+                        },
+                        {
+                          query: "Show me products with zero sales in the last 30 days",
+                          exp: "inventory_agent",
+                          act: "inventory_agent",
+                          score: 1,
+                          reasoning: "The response is a hallucination. The user asked a direct data query ('Show me products...'), but no database context, CSV, or API result was provided in the prompt. The assistant invented specific data points (167 SKUs, specific Product IDs like 1832/1078, descriptions like 'Boho Linen Silver', production costs, and seasonal assumptions) that do not exist in the conversation history. This constitutes fabricated data rather than a grounded answer."
+                        }
+                      ].map((item, idx) => (
+                        <tr key={idx} className="hover:bg-neutral-50">
+                          <td className="py-2.5 px-3 text-primary font-bold">{item.query}</td>
+                          <td className="py-2.5 px-3 font-mono text-[10px] text-text-muted">{item.exp}</td>
+                          <td className={`py-2.5 px-3 font-mono text-[10px] ${item.exp === item.act ? "text-emerald-600 font-bold" : "text-amber-600"}`}>{item.act}</td>
+                          <td className="py-2.5 px-3 text-center font-bold">
+                            <span className={`inline-block px-1.5 py-0.5 rounded-none font-mono ${item.score >= 4 ? "bg-emerald-50 text-emerald-700" : item.score >= 3 ? "bg-amber-50 text-amber-700" : "bg-rose-50 text-rose-700"}`}>
+                              {item.score} / 5
+                            </span>
+                          </td>
+                          <td className="py-2.5 px-3 text-text-muted italic max-w-xs truncate" title={item.reasoning}>{item.reasoning}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
                 </div>
               </div>
             </motion.div>
