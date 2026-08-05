@@ -17,6 +17,8 @@ import {
   LineChart,
   Line,
   Legend,
+  ScatterChart,
+  Scatter
 } from "recharts";
 import { SAMPLE_PRODUCTS } from "../data/products";
 import {
@@ -462,71 +464,129 @@ export default function RetailerCommandCenter({
               exit={{ opacity: 0, y: -10 }}
               className="space-y-8"
             >
-              {/* Top KPI Cards (6 Required Cards) */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
+              {/* Top KPI Cards (10 Dataset Metrics Cards) */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                {/* 1. Net Revenue */}
                 <div className="bg-surface border border-border-subtle p-4 shadow-2xs">
                   <div className="flex items-center justify-between text-[11px] font-label-sm text-text-muted mb-1">
-                    <span>TOTAL REVENUE</span>
+                    <span>NET REVENUE</span>
+                    <span className="text-emerald-600 font-mono font-bold">+17.8%</span>
+                  </div>
+                  <div className="font-headline-lg text-lg font-bold text-primary">$732,744,875</div>
+                  <p className="font-body-md text-[10px] text-text-muted mt-1.5">
+                    Net after returns ($43.3M)
+                  </p>
+                </div>
+
+                {/* 2. Gross Revenue */}
+                <div className="bg-surface border border-border-subtle p-4 shadow-2xs">
+                  <div className="flex items-center justify-between text-[11px] font-label-sm text-text-muted mb-1">
+                    <span>GROSS REVENUE</span>
                     <span className="text-emerald-600 font-mono font-bold">+18.4%</span>
                   </div>
-                  <div className="font-headline-lg text-xl font-bold text-primary">$732,744,875</div>
+                  <div className="font-headline-lg text-lg font-bold text-primary">$776,060,523</div>
                   <p className="font-body-md text-[10px] text-text-muted mt-1.5">
-                    Target: <span className="font-mono text-primary">$700,000,000</span>
+                    Total gross sales volume
                   </p>
                 </div>
 
+                {/* 3. Total Gross Profit */}
                 <div className="bg-surface border border-border-subtle p-4 shadow-2xs">
                   <div className="flex items-center justify-between text-[11px] font-label-sm text-text-muted mb-1">
-                    <span>TOTAL TRANSACTIONS</span>
-                    <span className="text-emerald-600 font-mono font-bold">+12.3%</span>
+                    <span>TOTAL GROSS</span>
+                    <span className="text-emerald-600 font-mono font-bold">83.3% Margin</span>
                   </div>
-                  <div className="font-headline-lg text-xl font-bold text-primary">4,540,404</div>
+                  <div className="font-headline-lg text-lg font-bold text-primary">$610,372,053</div>
                   <p className="font-body-md text-[10px] text-text-muted mt-1.5">
-                    Completed orders
+                    Gross profit contribution
                   </p>
                 </div>
 
+                {/* 4. Return Rate % */}
                 <div className="bg-surface border border-border-subtle p-4 shadow-2xs">
                   <div className="flex items-center justify-between text-[11px] font-label-sm text-text-muted mb-1">
-                    <span>UNITS SOLD</span>
-                    <span className="text-emerald-600 font-mono font-bold">+15.6%</span>
+                    <span>RETURN RATE %</span>
+                    <span className="text-emerald-600 font-mono font-bold">-0.4% YoY</span>
                   </div>
-                  <div className="font-headline-lg text-xl font-bold text-primary">7,060,071</div>
+                  <div className="font-headline-lg text-lg font-bold text-rose-600">5.59%</div>
                   <p className="font-body-md text-[10px] text-text-muted mt-1.5">
-                    Across 3 categories
+                    373,947 units returned
                   </p>
                 </div>
 
+                {/* 5. Net Units Sold */}
                 <div className="bg-surface border border-border-subtle p-4 shadow-2xs">
                   <div className="flex items-center justify-between text-[11px] font-label-sm text-text-muted mb-1">
-                    <span>AVG ORDER VALUE</span>
+                    <span>NET UNITS SOLD</span>
+                    <span className="text-emerald-600 font-mono font-bold">+15.2%</span>
+                  </div>
+                  <div className="font-headline-lg text-lg font-bold text-primary">6,312,177</div>
+                  <p className="font-body-md text-[10px] text-text-muted mt-1.5">
+                    6.68M gross units
+                  </p>
+                </div>
+
+                {/* 6. Average Order Value */}
+                <div className="bg-surface border border-border-subtle p-4 shadow-2xs">
+                  <div className="flex items-center justify-between text-[11px] font-label-sm text-text-muted mb-1">
+                    <span>AVERAGE ORDER VALUE</span>
                     <span className="text-emerald-600 font-mono font-bold">+5.2%</span>
                   </div>
-                  <div className="font-headline-lg text-xl font-bold text-primary">$161.38</div>
+                  <div className="font-headline-lg text-lg font-bold text-primary">$168.94</div>
                   <p className="font-body-md text-[10px] text-text-muted mt-1.5">
-                    Basket size: 1.56 units
+                    From 4,337,270 invoices
                   </p>
                 </div>
 
+                {/* 7. Unique Customers */}
                 <div className="bg-surface border border-border-subtle p-4 shadow-2xs">
                   <div className="flex items-center justify-between text-[11px] font-label-sm text-text-muted mb-1">
-                    <span>TOTAL CUSTOMERS</span>
+                    <span>UNIQUE CUSTOMERS</span>
                     <span className="text-emerald-600 font-mono font-bold">+22.1%</span>
                   </div>
-                  <div className="font-headline-lg text-xl font-bold text-primary">1,643,306</div>
+                  <div className="font-headline-lg text-lg font-bold text-primary">1,283,707</div>
                   <p className="font-body-md text-[10px] text-text-muted mt-1.5">
-                    Active buyers
+                    Distinct active accounts
                   </p>
                 </div>
 
+                {/* 8. Revenue per Employee */}
                 <div className="bg-surface border border-border-subtle p-4 shadow-2xs">
                   <div className="flex items-center justify-between text-[11px] font-label-sm text-text-muted mb-1">
-                    <span>ACTIVE STORES</span>
-                    <span className="text-blue-600 font-mono font-bold">100% ONLINE</span>
+                    <span>REV PER EMPLOYEE</span>
+                    <span className="text-emerald-600 font-mono font-bold">+9.6%</span>
                   </div>
-                  <div className="font-headline-lg text-xl font-bold text-primary">35 Stores</div>
+                  <div className="font-headline-lg text-lg font-bold text-primary">$2,450,652</div>
                   <p className="font-body-md text-[10px] text-text-muted mt-1.5">
-                    7 Global Regions
+                    299 total store staff
+                  </p>
+                </div>
+
+                {/* 9. Best Country (Top Sales Region) */}
+                <div className="bg-surface border border-border-subtle p-4 shadow-2xs">
+                  <div className="flex items-center justify-between text-[11px] font-label-sm text-text-muted mb-1">
+                    <span>BEST COUNTRY</span>
+                    <span className="text-emerald-600 font-mono font-bold">#1 Region</span>
+                  </div>
+                  <div className="font-headline-lg text-lg font-bold text-primary truncate" title="China ($538.5M)">
+                    China
+                  </div>
+                  <p className="font-body-md text-[10px] text-text-muted mt-1.5">
+                    Revenue: <span className="font-mono text-emerald-600 font-bold">$538.5M</span>
+                  </p>
+                </div>
+
+                {/* 10. Best Store (Top Performer) */}
+                <div className="bg-surface border border-border-subtle p-4 shadow-2xs">
+                  <div className="flex items-center justify-between text-[11px] font-label-sm text-text-muted mb-1">
+                    <span>BEST STORE</span>
+                    <span className="text-emerald-600 font-mono font-bold">#1 Store</span>
+                  </div>
+                  <div className="font-headline-lg text-lg font-bold text-primary truncate" title="Shanghai Store">
+                    Shanghai Flagship
+                  </div>
+                  <p className="font-body-md text-[10px] text-text-muted mt-1.5">
+                    Revenue: <span className="font-mono text-emerald-600 font-bold">$132.2M</span>
                   </p>
                 </div>
               </div>
@@ -684,18 +744,22 @@ export default function RetailerCommandCenter({
 
           {/* TAB 2: DEMAND FORECASTING */}
           {activeTab === "forecasting" && (() => {
-            // Filter matrix rows based on horizon and selected filters
+            // Filter matrix rows based on horizon
             const filteredRows = liveTableData.filter((row) => {
               if (row.dayOffset !== undefined && row.dayOffset >= forecastHorizon) return false;
-              if (forecastCategory !== "All" && row.category !== forecastCategory) return false;
-              if (forecastSubcategory !== "All" && row.subcategory !== forecastSubcategory) return false;
-              if (forecastStore !== "All" && row.store !== forecastStore) return false;
-              if (forecastCountry !== "All" && row.country !== forecastCountry) return false;
               return true;
             });
 
             // Filter daily chart series based on active horizon
             const filteredChartData = liveDailySeries.filter((d) => d.dayOffset < forecastHorizon);
+
+            const allVal = filteredChartData.map((d) => [d.historicalSales ?? 0, d.forecastDemand ?? 0]).flat();
+            const minVal = allVal.length ? Math.min(...allVal) - 5 : 0;
+            const maxVal = allVal.length ? Math.max(...allVal) + 5 : 150;
+            const idealLinePoints = [
+              { historicalSales: minVal, forecastDemand: minVal },
+              { historicalSales: maxVal, forecastDemand: maxVal }
+            ];
 
             const totalForecastQuantity = filteredRows.reduce((sum, r) => sum + r.quantity, 0);
             const totalExpectedRevenue = filteredRows.reduce((sum, r) => sum + r.lineTotal, 0);
@@ -715,23 +779,11 @@ export default function RetailerCommandCenter({
                 {/* Header & Horizon Selector */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-border-subtle">
                   <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <h2 className="font-headline-lg text-xl text-primary font-bold">
-                        Neural Demand Forecasting Engine (LightGBM)
-                      </h2>
-                      {isLiveModelActive ? (
-                        <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 border border-emerald-300 font-mono text-[10px] font-bold rounded-none flex items-center gap-1">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
-                          LIVE PKL MODEL (inferencev2.py)
-                        </span>
-                      ) : (
-                        <span className="px-2 py-0.5 bg-amber-50 text-amber-800 border border-amber-300 font-mono text-[10px] font-bold rounded-none">
-                          {isForecastLoading ? "COMPUTING PKL INFERENCE..." : "LIGHTGBM PKL MODEL"}
-                        </span>
-                      )}
-                    </div>
+                    <h2 className="font-headline-lg text-xl text-primary font-bold">
+                      Neural Demand Forecasting Engine
+                    </h2>
                     <p className="font-body-md text-xs text-text-muted">
-                      Predictive multi-variate modeling with backend/lgbm_demand_model.pkl & inferencev2.py pipeline.
+                      Time-series forecasting and evaluation metrics dashboard.
                     </p>
                   </div>
 
@@ -753,107 +805,7 @@ export default function RetailerCommandCenter({
                   </div>
                 </div>
 
-                {/* Filters Row: Category, Subcategory, Store, Country */}
-                <div className="bg-surface border border-border-subtle p-4 space-y-3 shadow-2xs">
-                  <div className="flex items-center justify-between pb-2 border-b border-border-subtle">
-                    <span className="font-label-sm text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1.5">
-                      <span className="material-symbols-outlined text-sm">filter_alt</span>
-                      Demand Forecasting Filters
-                    </span>
-                    {(forecastCategory !== "All" || forecastSubcategory !== "All" || forecastStore !== "All" || forecastCountry !== "All") && (
-                      <button
-                        onClick={() => {
-                          setForecastCategory("All");
-                          setForecastSubcategory("All");
-                          setForecastStore("All");
-                          setForecastCountry("All");
-                        }}
-                        className="text-[11px] font-mono text-amber-600 hover:underline cursor-pointer"
-                      >
-                        Reset All Filters
-                      </button>
-                    )}
-                  </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs font-body-md">
-                    {/* Category Filter */}
-                    <div>
-                      <label className="block text-[11px] text-text-muted font-medium mb-1">Category</label>
-                      <select
-                        value={forecastCategory}
-                        onChange={(e) => setForecastCategory(e.target.value)}
-                        className="w-full bg-surface-paper border border-border-subtle px-3 py-2 rounded-none text-xs text-primary focus:outline-none focus:border-primary cursor-pointer"
-                      >
-                        <option value="All">All Categories</option>
-                        <option value="Feminine">Feminine</option>
-                        <option value="Masculine">Masculine</option>
-                        <option value="Children">Children</option>
-                      </select>
-                    </div>
-
-                    {/* Subcategory Filter */}
-                    <div>
-                      <label className="block text-[11px] text-text-muted font-medium mb-1">Subcategory</label>
-                      <select
-                        value={forecastSubcategory}
-                        onChange={(e) => setForecastSubcategory(e.target.value)}
-                        className="w-full bg-surface-paper border border-border-subtle px-3 py-2 rounded-none text-xs text-primary focus:outline-none focus:border-primary cursor-pointer"
-                      >
-                        <option value="All">All Subcategories</option>
-                        <option value="Coats and Blazers">Coats and Blazers</option>
-                        <option value="Sweaters and Knitwear">Sweaters and Knitwear</option>
-                        <option value="Dresses and Jumpsuits">Dresses and Jumpsuits</option>
-                        <option value="Suits and Blazers">Suits and Blazers</option>
-                        <option value="Sweaters and Sweatshirts">Sweaters and Sweatshirts</option>
-                        <option value="T-shirts and Polos">T-shirts and Polos</option>
-                        <option value="Accessories">Accessories</option>
-                        <option value="Girl and Boy">Girl and Boy</option>
-                        <option value="Baby">Baby</option>
-                      </select>
-                    </div>
-
-                    {/* Store Filter */}
-                    <div>
-                      <label className="block text-[11px] text-text-muted font-medium mb-1">Store Location</label>
-                      <select
-                        value={forecastStore}
-                        onChange={(e) => setForecastStore(e.target.value)}
-                        className="w-full bg-surface-paper border border-border-subtle px-3 py-2 rounded-none text-xs text-primary focus:outline-none focus:border-primary cursor-pointer"
-                      >
-                        <option value="All">All Stores</option>
-                        <option value="Shanghai Flagship">Shanghai Flagship</option>
-                        <option value="Guangzhou Store">Guangzhou Store</option>
-                        <option value="Shenzhen Store">Shenzhen Store</option>
-                        <option value="Beijing Store">Beijing Store</option>
-                        <option value="Chongqing Store">Chongqing Store</option>
-                        <option value="New York Soho">New York Soho</option>
-                        <option value="Los Angeles Hub">Los Angeles Hub</option>
-                        <option value="Houston Store">Houston Store</option>
-                        <option value="Berlin Store">Berlin Store</option>
-                        <option value="Chicago Store">Chicago Store</option>
-                      </select>
-                    </div>
-
-                    {/* Country Filter */}
-                    <div>
-                      <label className="block text-[11px] text-text-muted font-medium mb-1">Country</label>
-                      <select
-                        value={forecastCountry}
-                        onChange={(e) => setForecastCountry(e.target.value)}
-                        className="w-full bg-surface-paper border border-border-subtle px-3 py-2 rounded-none text-xs text-primary focus:outline-none focus:border-primary cursor-pointer"
-                      >
-                        <option value="All">All Countries</option>
-                        <option value="China">China</option>
-                        <option value="United States">United States</option>
-                        <option value="Germany">Germany</option>
-                        <option value="France">France</option>
-                        <option value="Portugal">Portugal</option>
-                        <option value="Spain">Spain</option>
-                        <option value="United Kingdom">United Kingdom</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
 
                 {/* Outputs Section: Forecasted Demand, Expected Revenue, Trend Direction, Confidence Score */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -912,39 +864,43 @@ export default function RetailerCommandCenter({
                   </div>
                 </div>
 
-                {/* Chart: Historical Sales vs Forecast with Confidence Band */}
-                <div className="bg-surface border border-border-subtle p-6 space-y-4 shadow-2xs">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-border-subtle">
-                    <div>
-                      <h3 className="font-headline-lg text-sm text-primary font-bold uppercase tracking-wider">
-                        Historical Sales vs. AI Forecast & Confidence Band ({forecastHorizon}-Day Horizon)
-                      </h3>
-                      <p className="font-body-md text-xs text-text-muted">
-                        Solid blue line: actual sales; Dashed black line: LightGBM forecast; Shaded green area: 95% Confidence Band (std_error = 0.4081).
-                      </p>
+                {/* AI Demand Forecast Evaluation Plots */}
+                <div className="space-y-8">
+                  {/* Plot 1: Forecast vs Actual Line Chart */}
+                  <div className="bg-surface border border-border-subtle p-6 space-y-4 shadow-2xs">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-border-subtle">
+                      <div>
+                        <h3 className="font-headline-lg text-sm text-primary font-bold uppercase tracking-wider">
+                          1. AI Forecast vs. Actual Demand ({forecastHorizon}-Day Horizon)
+                        </h3>
+                        <p className="font-body-md text-xs text-text-muted">
+                          Solid blue line: actual demand; Dashed orange line: AI forecast; Shaded area: 95% Confidence Interval.
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-4 text-xs font-mono">
+                        <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-blue-600 inline-block"></span> Actual Demand</span>
+                        <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-amber-500 inline-block"></span> AI Forecast</span>
+                        <span className="flex items-center gap-1.5"><span className="w-3 h-2 bg-amber-500/20 inline-block"></span> 95% Confidence Interval</span>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-4 text-xs font-mono">
-                      <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-blue-600 inline-block"></span> Historical Sales</span>
-                      <span className="flex items-center gap-1.5"><span className="w-3 h-0.5 bg-black inline-block"></span> LightGBM Forecast</span>
-                      <span className="flex items-center gap-1.5"><span className="w-3 h-2 bg-emerald-500/30 inline-block"></span> 95% Confidence Band</span>
-                    </div>
-                  </div>
 
-                  <div className="h-72 w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <AreaChart data={filteredChartData}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#eeeeee" />
-                        <XAxis dataKey="date" stroke="#666" fontSize={11} />
-                        <YAxis stroke="#666" fontSize={11} />
-                        <Tooltip contentStyle={{ backgroundColor: "#000", color: "#fff", fontSize: "12px" }} />
-                        <Area type="monotone" dataKey="upperBand" stroke="transparent" fill="#10b981" fillOpacity={0.18} name="Upper Confidence" />
-                        <Area type="monotone" dataKey="lowerBand" stroke="transparent" fill="#ffffff" fillOpacity={1} name="Lower Confidence" />
-                        <Line type="monotone" dataKey="historicalSales" stroke="#2563eb" strokeWidth={2.5} dot={{ r: 3 }} name="Historical Sales" />
-                        <Line type="monotone" dataKey="forecastDemand" stroke="#000000" strokeWidth={2.5} strokeDasharray="4 4" dot={{ r: 3 }} name="Forecasted Demand" />
-                      </AreaChart>
-                    </ResponsiveContainer>
+                    <div className="h-72 w-full">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <AreaChart data={filteredChartData}>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#eeeeee" />
+                          <XAxis dataKey="date" stroke="#666" fontSize={11} />
+                          <YAxis stroke="#666" fontSize={11} />
+                          <Tooltip contentStyle={{ backgroundColor: "#000", color: "#fff", fontSize: "12px" }} />
+                          <Area type="monotone" dataKey="upperBand" stroke="transparent" fill="#ff7f0e" fillOpacity={0.12} name="Upper Band" />
+                          <Area type="monotone" dataKey="lowerBand" stroke="transparent" fill="#ffffff" fillOpacity={1} name="Lower Band" />
+                          <Line type="monotone" dataKey="historicalSales" stroke="#1f77b4" strokeWidth={2.5} dot={{ r: 3 }} name="Actual Demand" />
+                          <Line type="monotone" dataKey="forecastDemand" stroke="#ff7f0e" strokeWidth={2.5} strokeDasharray="4 4" dot={{ r: 3 }} name="AI Forecast" />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
                   </div>
                 </div>
+
 
                 {/* Filtered Forecast Table */}
                 <div className="bg-surface border border-border-subtle p-6 space-y-4 shadow-2xs">
