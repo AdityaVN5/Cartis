@@ -8,3 +8,6 @@ coverage/
 !.env.example
 dataset
 .venv
+dataset.zip
+__pycache__/
+*.pyc

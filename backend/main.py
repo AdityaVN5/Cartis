@@ -137,6 +137,23 @@ def api_search_agent(req: ChatRequest):
     res = search_agent(req.query)
     return res
 
+@app.get("/api/forecast")
+def api_get_demand_forecast(force_reload: bool = False):
+    """
+    Returns AI demand forecasting predictions generated using LightGBM model (lgbm_demand_model.pkl)
+    and the inference pipeline in inferencev2.py.
+    """
+    from backend.inferencev2 import get_demand_predictions
+    try:
+        data = get_demand_predictions(force_reload=force_reload)
+        if not data:
+            raise HTTPException(status_code=500, detail="Failed to run LightGBM demand model inference.")
+        return data
+    except Exception as e:
+        logger.error(f"Demand forecast API error: {e}")
+        raise HTTPException(status_code=500, detail=str(e))
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run("backend.main:app", host=HOST, port=PORT, reload=True)
+

@@ -22,7 +22,8 @@ import { SAMPLE_PRODUCTS } from "../data/products";
 import {
   FORECAST_DAILY_SERIES,
   FORECAST_TABLE_DATA,
-  ForecastRow
+  ForecastRow,
+  DailyForecastSeries
 } from "../data/forecastData";
 import {
   INVENTORY_HUBS,
@@ -34,8 +35,6 @@ import {
 export type CommandTab =
   | "dashboard"
   | "forecasting"
-  | "inventory"
-  | "recommendations"
   | "copilot"
   | "product-analytics"
   | "model-health";
@@ -44,6 +43,7 @@ interface RetailerCommandCenterProps {
   activeTab: CommandTab;
   setActiveTab: (tab: CommandTab) => void;
 }
+
 
 // Chart Mock Data
 // Chart Data calculated directly from dataset CSV files
@@ -241,6 +241,38 @@ export default function RetailerCommandCenter({
   const [forecastStore, setForecastStore] = useState<string>("All");
   const [forecastCountry, setForecastCountry] = useState<string>("All");
 
+  // Live LightGBM Model Forecast State
+  const [liveDailySeries, setLiveDailySeries] = React.useState<DailyForecastSeries[]>(FORECAST_DAILY_SERIES);
+  const [liveTableData, setLiveTableData] = React.useState<ForecastRow[]>(FORECAST_TABLE_DATA);
+  const [isForecastLoading, setIsForecastLoading] = React.useState<boolean>(false);
+  const [isLiveModelActive, setIsLiveModelActive] = React.useState<boolean>(false);
+
+  React.useEffect(() => {
+    if (activeTab === "forecasting") {
+      setIsForecastLoading(true);
+      fetch("http://localhost:8000/api/forecast")
+        .then((res) => {
+          if (!res.ok) throw new Error("Forecast API unavailable");
+          return res.json();
+        })
+        .then((data) => {
+          if (data && data.dailySeries && data.dailySeries.length > 0) {
+            setLiveDailySeries(data.dailySeries);
+            if (data.tableData && data.tableData.length > 0) {
+              setLiveTableData(data.tableData);
+            }
+            setIsLiveModelActive(true);
+          }
+        })
+        .catch((err) => {
+          console.warn("Forecast API offline or loading baseline model:", err);
+        })
+        .finally(() => {
+          setIsForecastLoading(false);
+        });
+    }
+  }, [activeTab]);
+
   // Multi-Warehouse Inventory Filter & PO States
   const [inventoryHubFilter, setInventoryHubFilter] = useState<string>("All");
   const [inventoryStatusFilter, setInventoryStatusFilter] = useState<string>("All");
@@ -395,10 +427,8 @@ export default function RetailerCommandCenter({
           {[
             { id: "dashboard", label: "Dashboard", icon: "dashboard" },
             { id: "forecasting", label: "Demand Forecasting", icon: "trending_up" },
-            { id: "inventory", label: "Inventory Optimization", icon: "inventory_2" },
-            { id: "recommendations", label: "Recommendation Analytics", icon: "recommend" },
             { id: "product-analytics", label: "Product Analytics", icon: "analytics" },
-            { id: "model-health", label: "Monitoring & Model Health", icon: "health_and_safety" },
+            { id: "model-health", label: "Model Evaluation", icon: "health_and_safety" },
           ].map((tab) => {
             const isActive = activeTab === tab.id;
             return (
@@ -655,7 +685,7 @@ export default function RetailerCommandCenter({
           {/* TAB 2: DEMAND FORECASTING */}
           {activeTab === "forecasting" && (() => {
             // Filter matrix rows based on horizon and selected filters
-            const filteredRows = FORECAST_TABLE_DATA.filter((row) => {
+            const filteredRows = liveTableData.filter((row) => {
               if (row.dayOffset !== undefined && row.dayOffset >= forecastHorizon) return false;
               if (forecastCategory !== "All" && row.category !== forecastCategory) return false;
               if (forecastSubcategory !== "All" && row.subcategory !== forecastSubcategory) return false;
@@ -665,7 +695,7 @@ export default function RetailerCommandCenter({
             });
 
             // Filter daily chart series based on active horizon
-            const filteredChartData = FORECAST_DAILY_SERIES.filter((d) => d.dayOffset < forecastHorizon);
+            const filteredChartData = liveDailySeries.filter((d) => d.dayOffset < forecastHorizon);
 
             const totalForecastQuantity = filteredRows.reduce((sum, r) => sum + r.quantity, 0);
             const totalExpectedRevenue = filteredRows.reduce((sum, r) => sum + r.lineTotal, 0);
@@ -685,13 +715,26 @@ export default function RetailerCommandCenter({
                 {/* Header & Horizon Selector */}
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-border-subtle">
                   <div>
-                    <h2 className="font-headline-lg text-xl text-primary font-bold">
-                      Neural Demand Forecasting Engine (LightGBM)
-                    </h2>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h2 className="font-headline-lg text-xl text-primary font-bold">
+                        Neural Demand Forecasting Engine (LightGBM)
+                      </h2>
+                      {isLiveModelActive ? (
+                        <span className="px-2 py-0.5 bg-emerald-100 text-emerald-800 border border-emerald-300 font-mono text-[10px] font-bold rounded-none flex items-center gap-1">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-600 animate-pulse"></span>
+                          LIVE PKL MODEL (inferencev2.py)
+                        </span>
+                      ) : (
+                        <span className="px-2 py-0.5 bg-amber-50 text-amber-800 border border-amber-300 font-mono text-[10px] font-bold rounded-none">
+                          {isForecastLoading ? "COMPUTING PKL INFERENCE..." : "LIGHTGBM PKL MODEL"}
+                        </span>
+                      )}
+                    </div>
                     <p className="font-body-md text-xs text-text-muted">
-                      Predictive multi-variate modeling with historical baseline vs AI forecast & LightGBM 95% confidence bounds (std_error = 0.4081).
+                      Predictive multi-variate modeling with backend/lgbm_demand_model.pkl & inferencev2.py pipeline.
                     </p>
                   </div>
+
                   <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
                     <span className="text-xs text-text-muted font-mono mr-1">Horizon:</span>
                     {[7, 15, 30, 60, 90].map((h) => (
@@ -976,668 +1019,6 @@ export default function RetailerCommandCenter({
               </motion.div>
             );
           })()}
-
-          {/* TAB 3: INVENTORY OPTIMIZATION */}
-          {activeTab === "inventory" && (() => {
-            // Filter inventory items based on Hub, Status, Category, and Search query safely
-            const safeInventoryItems = INVENTORY_ITEMS || [];
-            const filteredInventory = safeInventoryItems.filter((item) => {
-              if (!item) return false;
-              if (inventoryHubFilter !== "All" && item.hub !== inventoryHubFilter) return false;
-              if (inventoryStatusFilter === "Critical" && !item.isLow) return false;
-              if (inventoryStatusFilter === "Healthy" && item.isLow) return false;
-              if (inventoryCategoryFilter !== "All" && item.category !== inventoryCategoryFilter) return false;
-              
-              if (inventorySearchQuery && inventorySearchQuery.trim() !== "") {
-                const q = inventorySearchQuery.toLowerCase();
-                const matchSku = item.sku ? String(item.sku).toLowerCase().includes(q) : false;
-                const matchName = item.name ? String(item.name).toLowerCase().includes(q) : false;
-                const matchSub = item.subcategory ? String(item.subcategory).toLowerCase().includes(q) : false;
-                if (!matchSku && !matchName && !matchSub) return false;
-              }
-              return true;
-            });
-
-            return (
-              <motion.div
-                key="tab-inventory"
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -10 }}
-                className="space-y-8"
-              >
-                {/* Header */}
-                <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-border-subtle">
-                  <div>
-                    <h2 className="font-headline-lg text-xl text-primary font-bold">
-                      Multi-Warehouse Inventory Optimization & Safety Buffer Stock
-                    </h2>
-                    <p className="font-body-md text-xs text-text-muted">
-                      Automated buffer stock calculations (z × σ_d × √LeadTime) and purchase order generation across regional fulfillment hubs.
-                    </p>
-                  </div>
-
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-emerald-600 font-mono font-bold flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 px-3 py-1">
-                      <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                      {safeInventoryItems.length} SKUs SYNCED WITH FULFILLMENT HUBS
-                    </span>
-                  </div>
-                </div>
-
-                {/* Warehouse Regional Stocks (Clickable Hub Cards) */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  {(INVENTORY_HUBS || []).map((hub) => {
-                    if (!hub) return null;
-                    const hubName = hub.name || "";
-                    const capacityPct = hub.capacityPct ?? 80;
-                    const totalUnits = hub.totalUnits ?? 0;
-                    const safetyBufferUnits = hub.safetyBufferUnits ?? 0;
-                    const criticalSkus = hub.criticalSkus ?? 0;
-
-                    const isSelected =
-                      inventoryHubFilter === hubName ||
-                      (inventoryHubFilter === "Warehouse Alpha (Tokyo)" && hubName.includes("TOKYO")) ||
-                      (inventoryHubFilter === "Warehouse Beta (Frankfurt)" && hubName.includes("FRANKFURT")) ||
-                      (inventoryHubFilter === "Warehouse Gamma (New York)" && hubName.includes("NEW YORK"));
-
-                    const targetHubLabel = hubName.includes("TOKYO")
-                      ? "Warehouse Alpha (Tokyo)"
-                      : hubName.includes("FRANKFURT")
-                      ? "Warehouse Beta (Frankfurt)"
-                      : "Warehouse Gamma (New York)";
-
-                    return (
-                      <div
-                        key={hubName}
-                        onClick={() => setInventoryHubFilter(isSelected ? "All" : targetHubLabel)}
-                        className={`bg-surface border p-5 cursor-pointer transition-all ${
-                          isSelected
-                            ? "border-primary shadow-md ring-1 ring-primary"
-                            : "border-border-subtle hover:border-neutral-400"
-                        }`}
-                      >
-                        <div className="flex items-center justify-between text-xs font-label-sm text-text-muted mb-2">
-                          <span className="font-bold text-primary">{hubName}</span>
-                          <span className={`font-mono font-bold ${capacityPct > 90 ? "text-amber-600" : "text-emerald-600"}`}>
-                            {capacityPct}% CAP
-                          </span>
-                        </div>
-                        <div className="font-headline-lg text-2xl font-bold text-primary">
-                          {totalUnits.toLocaleString()} Units
-                        </div>
-                        <div className="mt-3 pt-2 border-t border-border-subtle text-[11px] font-mono flex items-center justify-between">
-                          <span className="text-text-muted">
-                            Safety Buffer: <strong className="text-primary">{safetyBufferUnits.toLocaleString()}</strong>
-                          </span>
-                          <span className={criticalSkus > 0 ? "text-rose-600 font-bold" : "text-emerald-600"}>
-                            {criticalSkus} Critical SKUs
-                          </span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Filters & Search Toolbar */}
-                <div className="bg-surface border border-border-subtle p-4 space-y-3 shadow-2xs">
-                  <div className="flex items-center justify-between pb-2 border-b border-border-subtle">
-                    <span className="font-label-sm text-xs font-bold uppercase tracking-wider text-primary flex items-center gap-1.5">
-                      <span className="material-symbols-outlined text-sm">filter_list</span>
-                      Inventory Search & Buffer Controls
-                    </span>
-                    {(inventoryHubFilter !== "All" || inventoryStatusFilter !== "All" || inventoryCategoryFilter !== "All" || inventorySearchQuery !== "") && (
-                      <button
-                        onClick={() => {
-                          setInventoryHubFilter("All");
-                          setInventoryStatusFilter("All");
-                          setInventoryCategoryFilter("All");
-                          setInventorySearchQuery("");
-                        }}
-                        className="text-[11px] font-mono text-amber-600 hover:underline cursor-pointer"
-                      >
-                        Reset Inventory Filters
-                      </button>
-                    )}
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs font-body-md">
-                    {/* Search Query */}
-                    <div>
-                      <label className="block text-[11px] text-text-muted font-medium mb-1">Search SKU / Item</label>
-                      <input
-                        type="text"
-                        placeholder="Search SKU or Product..."
-                        value={inventorySearchQuery}
-                        onChange={(e) => setInventorySearchQuery(e.target.value)}
-                        className="w-full bg-surface-paper border border-border-subtle px-3 py-2 text-xs text-primary focus:outline-none focus:border-primary"
-                      />
-                    </div>
-
-                    {/* Hub Filter */}
-                    <div>
-                      <label className="block text-[11px] text-text-muted font-medium mb-1">Fulfillment Hub</label>
-                      <select
-                        value={inventoryHubFilter}
-                        onChange={(e) => setInventoryHubFilter(e.target.value)}
-                        className="w-full bg-surface-paper border border-border-subtle px-3 py-2 text-xs text-primary focus:outline-none focus:border-primary cursor-pointer"
-                      >
-                        <option value="All">All Regional Hubs</option>
-                        <option value="Warehouse Alpha (Tokyo)">Warehouse Alpha (Tokyo)</option>
-                        <option value="Warehouse Beta (Frankfurt)">Warehouse Beta (Frankfurt)</option>
-                        <option value="Warehouse Gamma (New York)">Warehouse Gamma (New York)</option>
-                      </select>
-                    </div>
-
-                    {/* Stock Status Filter */}
-                    <div>
-                      <label className="block text-[11px] text-text-muted font-medium mb-1">Stock Status</label>
-                      <select
-                        value={inventoryStatusFilter}
-                        onChange={(e) => setInventoryStatusFilter(e.target.value)}
-                        className="w-full bg-surface-paper border border-border-subtle px-3 py-2 text-xs text-primary focus:outline-none focus:border-primary cursor-pointer"
-                      >
-                        <option value="All">All Statuses</option>
-                        <option value="Critical">Critical / Below Reorder Point</option>
-                        <option value="Healthy">Optimal / Healthy</option>
-                      </select>
-                    </div>
-
-                    {/* Category Filter */}
-                    <div>
-                      <label className="block text-[11px] text-text-muted font-medium mb-1">Category</label>
-                      <select
-                        value={inventoryCategoryFilter}
-                        onChange={(e) => setInventoryCategoryFilter(e.target.value)}
-                        className="w-full bg-surface-paper border border-border-subtle px-3 py-2 text-xs text-primary focus:outline-none focus:border-primary cursor-pointer"
-                      >
-                        <option value="All">All Categories</option>
-                        <option value="Feminine">Feminine</option>
-                        <option value="Masculine">Masculine</option>
-                        <option value="Children">Children</option>
-                      </select>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Live Inventory Health & Auto PO Table */}
-                <div className="bg-surface border border-border-subtle p-6 space-y-4 shadow-2xs">
-                  <div className="flex items-center justify-between pb-3 border-b border-border-subtle">
-                    <h3 className="font-headline-lg text-sm text-primary font-bold uppercase tracking-wider">
-                      SKU Stock Health & Automated Purchase Orders ({filteredInventory.length} Items)
-                    </h3>
-                    <span className="text-xs font-mono text-text-muted">
-                      Formula: ROP = (Demand × LeadTime) + SafetyBuffer
-                    </span>
-                  </div>
-
-                  <div className="overflow-x-auto max-h-[520px] overflow-y-auto scrollbar-thin">
-                    <table className="w-full text-xs text-left">
-                      <thead className="sticky top-0 bg-surface-paper z-10">
-                        <tr className="border-b border-border-subtle text-text-muted font-label-sm uppercase">
-                          <th className="py-2 px-3">SKU</th>
-                          <th className="py-2 px-3">Product Name</th>
-                          <th className="py-2 px-3">Hub Location</th>
-                          <th className="py-2 px-3 text-right">Current Stock</th>
-                          <th className="py-2 px-3 text-right">Safety Buffer</th>
-                          <th className="py-2 px-3 text-right">Reorder Point</th>
-                          <th className="py-2 px-3 text-right">Supply Horizon</th>
-                          <th className="py-2 px-3 text-center">Status</th>
-                          <th className="py-2 px-3 text-right">Action</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-border-subtle font-body-md">
-                        {filteredInventory.length === 0 ? (
-                          <tr>
-                            <td colSpan={9} className="py-8 text-center text-text-muted font-mono">
-                              No inventory items found matching selected filter criteria.
-                            </td>
-                          </tr>
-                        ) : (
-                          filteredInventory.slice(0, 100).map((item) => {
-                            if (!item) return null;
-                            const sku = item.sku || "N/A";
-                            const name = item.name || "Item";
-                            const subcategory = item.subcategory || "";
-                            const hub = item.hub || "";
-                            const currentStock = item.currentStock ?? 0;
-                            const safetyStock = item.safetyStock ?? 0;
-                            const reorderPoint = item.reorderPoint ?? 0;
-                            const daysOfSupply = item.daysOfSupply ?? 0;
-                            const isLow = !!item.isLow;
-
-                            return (
-                              <tr key={item.id} className="hover:bg-neutral-50/80 transition-colors">
-                                <td className="py-3 px-3 font-mono text-text-muted font-bold">{sku}</td>
-                                <td className="py-3 px-3">
-                                  <span className="font-bold text-primary block">{name}</span>
-                                  <span className="text-[10px] text-text-muted font-mono">{subcategory}</span>
-                                </td>
-                                <td className="py-3 px-3 font-mono text-text-muted text-[11px]">
-                                  {hub}
-                                </td>
-                                <td className="py-3 px-3 text-right font-mono font-bold text-primary">
-                                  {currentStock} Units
-                                </td>
-                                <td className="py-3 px-3 text-right font-mono text-emerald-700 font-bold">
-                                  {safetyStock} Units
-                                </td>
-                                <td className="py-3 px-3 text-right font-mono text-amber-700 font-bold">
-                                  {reorderPoint} Units
-                                </td>
-                                <td className="py-3 px-3 text-right font-mono text-text-muted">
-                                  {daysOfSupply} Days
-                                </td>
-                                <td className="py-3 px-3 text-center">
-                                  {isLow ? (
-                                    <span className="text-[10px] bg-rose-50 text-rose-700 border border-rose-200 px-2 py-0.5 font-mono font-bold">
-                                      REORDER REQ
-                                    </span>
-                                  ) : (
-                                    <span className="text-[10px] bg-emerald-50 text-emerald-700 border border-emerald-200 px-2 py-0.5 font-mono">
-                                      OPTIMAL
-                                    </span>
-                                  )}
-                                </td>
-                                <td className="py-3 px-3 text-right">
-                                  <button
-                                    onClick={() => {
-                                      setPoModalItem(item);
-                                      setPoSuccess(false);
-                                    }}
-                                    className={`px-3 py-1 text-xs font-body-md transition-colors cursor-pointer ${
-                                      isLow
-                                        ? "bg-primary text-on-primary hover:bg-neutral-800 font-bold"
-                                        : "bg-surface text-text-muted border border-border-subtle hover:text-primary"
-                                    }`}
-                                  >
-                                    {isLow ? "Auto-Generate PO" : "Details"}
-                                  </button>
-                                </td>
-                              </tr>
-                            );
-                          })
-                        )}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </motion.div>
-            );
-          })()}
-
-          {/* TAB 4: RECOMMENDATION ANALYTICS */}
-          {activeTab === "recommendations" && (
-            <motion.div
-              key="tab-recommendations"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="space-y-8"
-            >
-              {/* Section Header */}
-              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-border-subtle">
-                <div>
-                  <h2 className="font-headline-lg text-xl text-primary font-bold">
-                    Recommendation & Personalization Analytics
-                  </h2>
-                  <p className="font-body-md text-xs text-text-muted">
-                    Detailed metrics and graphical affinity models tracking AI Stylist cross-sell performance, bundle co-purchases, and recommendation CTR.
-                  </p>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <span className="text-xs text-emerald-600 font-mono font-bold flex items-center gap-1.5 bg-emerald-50 border border-emerald-200 px-3 py-1">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    RECOMMENDATION ENGINE ONLINE (v2.8)
-                  </span>
-                </div>
-              </div>
-
-              {/* Required Metrics Cards: Top Recommended Products, Recommendation Revenue, Most Purchased Together, Trending Products */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {/* 1. Top Recommended Products */}
-                <div className="bg-surface border border-border-subtle p-5 shadow-2xs">
-                  <div className="flex items-center justify-between text-xs font-label-sm text-text-muted mb-2">
-                    <span>TOP RECOMMENDED ITEM</span>
-                    <span className="material-symbols-outlined text-sm text-primary">auto_awesome</span>
-                  </div>
-                  <div className="font-headline-lg text-base font-bold text-primary truncate" title="Cartis Trench Parka">
-                    Cartis Trench Parka
-                  </div>
-                  <div className="flex items-center justify-between mt-2 pt-2 border-t border-border-subtle text-[11px] font-mono">
-                    <span className="text-text-muted">CTR: <strong className="text-primary">26.2%</strong></span>
-                    <span className="text-emerald-600 font-bold">$184,200 Rev</span>
-                  </div>
-                </div>
-
-                {/* 2. Recommendation Revenue */}
-                <div className="bg-surface border border-border-subtle p-5 shadow-2xs">
-                  <div className="flex items-center justify-between text-xs font-label-sm text-text-muted mb-2">
-                    <span>RECOMMENDATION REVENUE</span>
-                    <span className="text-emerald-600 font-mono font-bold">+28.4%</span>
-                  </div>
-                  <div className="font-headline-lg text-2xl font-bold text-primary">
-                    $482,000
-                  </div>
-                  <p className="font-body-md text-[11px] text-text-muted mt-2">
-                    Represents <strong className="text-primary">26.2%</strong> of gross store revenue
-                  </p>
-                </div>
-
-                {/* 3. Most Purchased Together */}
-                <div className="bg-surface border border-border-subtle p-5 shadow-2xs">
-                  <div className="flex items-center justify-between text-xs font-label-sm text-text-muted mb-2">
-                    <span>MOST PURCHASED TOGETHER</span>
-                    <span className="material-symbols-outlined text-sm text-blue-600">add_shopping_cart</span>
-                  </div>
-                  <div className="font-headline-lg text-base font-bold text-primary truncate" title="Parka + Leather Boot">
-                    Parka + Leather Boot
-                  </div>
-                  <div className="flex items-center justify-between mt-2 pt-2 border-t border-border-subtle text-[11px] font-mono">
-                    <span className="text-text-muted">Bundles: <strong className="text-primary">480</strong></span>
-                    <span className="text-emerald-600 font-bold">$384k Vol</span>
-                  </div>
-                </div>
-
-                {/* 4. Trending Products */}
-                <div className="bg-surface border border-border-subtle p-5 shadow-2xs">
-                  <div className="flex items-center justify-between text-xs font-label-sm text-text-muted mb-2">
-                    <span>TRENDING IN RECOMMENDATIONS</span>
-                    <span className="material-symbols-outlined text-sm text-amber-500">trending_up</span>
-                  </div>
-                  <div className="font-headline-lg text-base font-bold text-primary truncate" title="Monolith Tech Sunglasses">
-                    Monolith Tech Sunglasses
-                  </div>
-                  <p className="font-body-md text-[11px] text-amber-600 font-bold mt-2">
-                    ⚡ +142% Recommendation Velocity
-                  </p>
-                </div>
-              </div>
-
-              {/* Visualization 1: Product Affinity Network */}
-              <div className="bg-surface border border-border-subtle p-6 space-y-4 shadow-2xs">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-3 border-b border-border-subtle">
-                  <div>
-                    <h3 className="font-headline-lg text-sm text-primary font-bold uppercase tracking-wider flex items-center gap-2">
-                      <span className="material-symbols-outlined text-sm text-primary">hub</span>
-                      Product Affinity Network Graph
-                    </h3>
-                    <p className="font-body-md text-xs text-text-muted">
-                      Interactive network mapping co-recommendation affinity scores and bundling connections across catalog nodes.
-                    </p>
-                  </div>
-                  <div className="flex items-center gap-2 font-mono text-[11px] text-text-muted">
-                    <span className="w-2.5 h-2.5 bg-black inline-block"></span> High Affinity (&gt;75%)
-                    <span className="w-2.5 h-2.5 bg-neutral-400 inline-block ml-2"></span> Moderate Affinity (&gt;50%)
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                  {/* SVG Network Graph Canvas */}
-                  <div className="lg:col-span-2 bg-surface-paper border border-border-subtle p-4 relative min-h-[300px] flex items-center justify-center overflow-hidden">
-                    <svg className="w-full h-72 max-w-xl mx-auto overflow-visible" viewBox="0 0 500 280">
-                      {/* Edges */}
-                      {PRODUCT_AFFINITY_EDGES.map((edge, idx) => {
-                        const srcNode = PRODUCT_AFFINITY_NODES.find((n) => n.id === edge.source);
-                        const tgtNode = PRODUCT_AFFINITY_NODES.find((n) => n.id === edge.target);
-                        if (!srcNode || !tgtNode) return null;
-
-                        const isSelected = selectedAffinityNode === srcNode.id || selectedAffinityNode === tgtNode.id;
-
-                        return (
-                          <g key={idx}>
-                            <line
-                              x1={srcNode.cx}
-                              y1={srcNode.cy}
-                              x2={tgtNode.cx}
-                              y2={tgtNode.cy}
-                              stroke={isSelected ? "#000000" : "#cbd5e1"}
-                              strokeWidth={isSelected ? 3 : edge.score * 3.5}
-                              strokeDasharray={edge.score < 0.7 ? "4 4" : "none"}
-                              className="transition-all duration-300"
-                            />
-                            {/* Score pill on edge center */}
-                            <rect
-                              x={(srcNode.cx + tgtNode.cx) / 2 - 16}
-                              y={(srcNode.cy + tgtNode.cy) / 2 - 8}
-                              width="32"
-                              height="16"
-                              fill="#ffffff"
-                              stroke="#e2e8f0"
-                              rx="2"
-                            />
-                            <text
-                              x={(srcNode.cx + tgtNode.cx) / 2}
-                              y={(srcNode.cy + tgtNode.cy) / 2 + 4}
-                              textAnchor="middle"
-                              fontSize="9"
-                              fontFamily="monospace"
-                              fontWeight="bold"
-                              fill={isSelected ? "#000000" : "#64748b"}
-                            >
-                              {edge.strength}
-                            </text>
-                          </g>
-                        );
-                      })}
-
-                      {/* Nodes */}
-                      {PRODUCT_AFFINITY_NODES.map((node) => {
-                        const isSelected = selectedAffinityNode === node.id;
-                        return (
-                          <g
-                            key={node.id}
-                            onClick={() => setSelectedAffinityNode(node.id)}
-                            className="cursor-pointer group"
-                          >
-                            <circle
-                              cx={node.cx}
-                              cy={node.cy}
-                              r={node.r + (isSelected ? 4 : 0)}
-                              fill={node.color}
-                              stroke={isSelected ? "#10b981" : "#ffffff"}
-                              strokeWidth={isSelected ? 4 : 2}
-                              className="transition-all duration-200 group-hover:opacity-90"
-                            />
-                            <text
-                              x={node.cx}
-                              y={node.cy + node.r + 14}
-                              textAnchor="middle"
-                              fontSize="10"
-                              fontWeight="bold"
-                              fill="#1e293b"
-                            >
-                              {node.name.split(" ")[0]} {node.name.split(" ")[1] || ""}
-                            </text>
-                            <text
-                              x={node.cx}
-                              y={node.cy + node.r + 26}
-                              textAnchor="middle"
-                              fontSize="9"
-                              fill="#64748b"
-                              fontFamily="monospace"
-                            >
-                              {node.category}
-                            </text>
-                          </g>
-                        );
-                      })}
-                    </svg>
-                  </div>
-
-                  {/* Selected Affinity Node Details */}
-                  <div className="bg-surface-paper border border-border-subtle p-5 space-y-4">
-                    <div className="pb-2 border-b border-border-subtle">
-                      <span className="text-[10px] font-mono text-text-muted uppercase block">NODE AFFINITY DIAGNOSTIC</span>
-                      <h4 className="font-headline-lg text-sm font-bold text-primary">
-                        {PRODUCT_AFFINITY_NODES.find((n) => n.id === selectedAffinityNode)?.name || "Cartis Trench Parka"}
-                      </h4>
-                    </div>
-
-                    <div className="space-y-3 text-xs font-body-md">
-                      <div className="p-3 bg-surface border border-border-subtle space-y-1.5">
-                        <span className="font-bold text-primary block">Connected Recommendations:</span>
-                        {PRODUCT_AFFINITY_EDGES.filter(
-                          (e) => e.source === selectedAffinityNode || e.target === selectedAffinityNode
-                        ).map((e, i) => {
-                          const otherId = e.source === selectedAffinityNode ? e.target : e.source;
-                          const otherNode = PRODUCT_AFFINITY_NODES.find((n) => n.id === otherId);
-                          return (
-                            <div key={i} className="flex items-center justify-between text-[11px]">
-                              <span className="text-text-muted">↔ {otherNode?.name}</span>
-                              <span className="font-mono font-bold text-emerald-600">{e.strength}</span>
-                            </div>
-                          );
-                        })}
-                      </div>
-
-                      <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-900 space-y-1">
-                        <span className="font-bold block text-[11px]">AI Bundle Optimization Suggestion:</span>
-                        <p className="text-[11px]">
-                          Pairing this item in checkout modals yields <strong className="font-bold">+31.4% average order value boost</strong>.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Visualization 2 & Table Grid */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Frequently Bought Together Bundles */}
-                <div className="bg-surface border border-border-subtle p-6 space-y-4 shadow-2xs">
-                  <div className="pb-3 border-b border-border-subtle">
-                    <h3 className="font-headline-lg text-sm text-primary font-bold uppercase tracking-wider flex items-center gap-2">
-                      <span className="material-symbols-outlined text-sm">inventory_2</span>
-                      Frequently Bought Together Bundles
-                    </h3>
-                    <p className="font-body-md text-xs text-text-muted">
-                      High-co-occurrence bundle recipes recommended by AI Stylist.
-                    </p>
-                  </div>
-
-                  <div className="space-y-3">
-                    {FREQUENTLY_BOUGHT_TOGETHER.map((bundle) => (
-                      <div key={bundle.bundleId} className="bg-surface-paper border border-border-subtle p-4 space-y-2">
-                        <div className="flex items-center justify-between text-xs font-bold text-primary">
-                          <span>{bundle.title}</span>
-                          <span className="font-mono text-emerald-600">{bundle.bundlePrice} <span className="line-through text-text-muted font-normal text-[10px]">{bundle.regularPrice}</span></span>
-                        </div>
-                        <div className="flex flex-wrap gap-1.5">
-                          {bundle.items.map((item, idx) => (
-                            <span key={idx} className="text-[10px] bg-surface border border-border-subtle px-2 py-0.5 font-mono text-text-muted">
-                              + {item}
-                            </span>
-                          ))}
-                        </div>
-                        <div className="flex items-center justify-between pt-2 border-t border-border-subtle text-[11px] font-mono text-text-muted">
-                          <span>Co-occurrence: <strong className="text-primary">{bundle.frequency}</strong></span>
-                          <span>Conversion: <strong className="text-emerald-600">{bundle.conversionRate}</strong></span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Top Recommended Products Matrix */}
-                <div className="bg-surface border border-border-subtle p-6 space-y-4 shadow-2xs">
-                  <div className="pb-3 border-b border-border-subtle">
-                    <h3 className="font-headline-lg text-sm text-primary font-bold uppercase tracking-wider flex items-center gap-2">
-                      <span className="material-symbols-outlined text-sm">stars</span>
-                      Top Recommended Products Matrix
-                    </h3>
-                    <p className="font-body-md text-xs text-text-muted">
-                      Highest ranking items in AI recommendation queues.
-                    </p>
-                  </div>
-
-                  <div className="overflow-x-auto">
-                    <table className="w-full text-xs text-left">
-                      <thead>
-                        <tr className="border-b border-border-subtle text-text-muted font-label-sm uppercase">
-                          <th className="py-2">Rank</th>
-                          <th className="py-2">Product Name</th>
-                          <th className="py-2">CTR</th>
-                          <th className="py-2">Conv %</th>
-                          <th className="py-2 text-right">Revenue</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-border-subtle font-body-md">
-                        {TOP_RECOMMENDED_PRODUCTS.map((prod) => (
-                          <tr key={prod.rank} className="hover:bg-surface-container-low transition-colors">
-                            <td className="py-2.5 font-mono font-bold text-text-muted">#{prod.rank}</td>
-                            <td className="py-2.5 font-bold text-primary">{prod.name}</td>
-                            <td className="py-2.5 font-mono text-emerald-600 font-bold">{prod.ctr}</td>
-                            <td className="py-2.5 font-mono">{prod.conversion}</td>
-                            <td className="py-2.5 font-mono font-bold text-right text-primary">{prod.revenue}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                </div>
-              </div>
-
-              {/* Visualizations 3 & 4: Recommendation CTR & Category Preferences */}
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Visualization 3: Recommendation CTR */}
-                <div className="bg-surface border border-border-subtle p-6 space-y-4 shadow-2xs">
-                  <div className="pb-3 border-b border-border-subtle">
-                    <h3 className="font-headline-lg text-sm text-primary font-bold uppercase tracking-wider">
-                      Recommendation CTR Across Placements
-                    </h3>
-                    <p className="font-body-md text-xs text-text-muted">
-                      Weekly click-through rate progression across surfaces.
-                    </p>
-                  </div>
-
-                  <div className="h-64 w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <LineChart data={RECOMMENDATION_CTR_TIMELINE}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
-                        <XAxis dataKey="period" stroke="#666" fontSize={11} />
-                        <YAxis stroke="#666" fontSize={11} tickFormatter={(v) => `${v}%`} />
-                        <Tooltip formatter={(val: number) => [`${val}%`, "CTR"]} contentStyle={{ backgroundColor: "#000", color: "#fff", fontSize: "12px" }} />
-                        <Legend wrapperStyle={{ fontSize: "11px" }} />
-                        <Line type="monotone" dataKey="personalStylist" name="Personal Stylist Widget" stroke="#000000" strokeWidth={2.5} />
-                        <Line type="monotone" dataKey="pdpCrossSell" name="PDP Cross-Sell" stroke="#2563eb" strokeWidth={2} />
-                        <Line type="monotone" dataKey="cartModal" name="Cart Recommendations" stroke="#10b981" strokeWidth={2} />
-                        <Line type="monotone" dataKey="emailRetargeting" name="Email Retargeting" stroke="#888888" strokeWidth={1.5} strokeDasharray="3 3" />
-                      </LineChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-
-                {/* Visualization 4: Category Preferences */}
-                <div className="bg-surface border border-border-subtle p-6 space-y-4 shadow-2xs">
-                  <div className="pb-3 border-b border-border-subtle">
-                    <h3 className="font-headline-lg text-sm text-primary font-bold uppercase tracking-wider">
-                      Category Preferences by Customer Segment
-                    </h3>
-                    <p className="font-body-md text-xs text-text-muted">
-                      Recommendation affinity scores across target shopper cohorts.
-                    </p>
-                  </div>
-
-                  <div className="h-64 w-full">
-                    <ResponsiveContainer width="100%" height="100%">
-                      <BarChart data={CATEGORY_PREFERENCES_DATA}>
-                        <CartesianGrid strokeDasharray="3 3" stroke="#eee" />
-                        <XAxis dataKey="category" stroke="#666" fontSize={10} />
-                        <YAxis stroke="#666" fontSize={11} tickFormatter={(v) => `${v}%`} />
-                        <Tooltip formatter={(val: number) => [`${val}%`, "Affinity Score"]} contentStyle={{ backgroundColor: "#000", color: "#fff", fontSize: "12px" }} />
-                        <Legend wrapperStyle={{ fontSize: "11px" }} />
-                        <Bar dataKey="vipShoppers" name="VIP Shoppers" fill="#111111" />
-                        <Bar dataKey="techwearSegment" name="Techwear Enthusiasts" fill="#3b82f6" />
-                        <Bar dataKey="firstTimeShoppers" name="First-Time Buyers" fill="#94a3b8" />
-                      </BarChart>
-                    </ResponsiveContainer>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-          )}
 
           {/* TAB 5: PRODUCT ANALYTICS */}
           {activeTab === "product-analytics" && (
@@ -1966,91 +1347,198 @@ export default function RetailerCommandCenter({
                 <div>
                   <h2 className="font-headline-lg text-xl text-primary font-bold flex items-center gap-2">
                     <span className="material-symbols-outlined text-lg">health_and_safety</span>
-                    ML Model Health & Infrastructure Telemetry
+                    ML Model Evaluation
                   </h2>
                   <p className="font-body-md text-xs text-text-muted">
-                    Monitor model drift, latency, loss function convergence, and edge compilation status.
+                    LightGBM demand prediction performance metrics and holdout evaluations.
                   </p>
                 </div>
-
-                <button
-                  onClick={handleTriggerRetrain}
-                  disabled={isRetraining}
-                  className="bg-primary text-on-primary font-body-md text-xs px-4 py-2 font-bold hover:bg-neutral-800 transition-colors disabled:opacity-50 cursor-pointer flex items-center gap-2"
-                >
-                  <span className="material-symbols-outlined text-sm">published_with_changes</span>
-                  {isRetraining ? "Retraining Models..." : "Trigger Model Retraining"}
-                </button>
               </div>
 
-              {/* Progress Bar during retraining */}
-              {isRetraining && (
-                <div className="p-4 bg-surface-paper border border-border-subtle space-y-2">
-                  <div className="flex justify-between text-xs font-mono font-bold">
-                    <span>NEURAL MODEL RE-COMPILATION IN PROGRESS</span>
-                    <span>{retrainProgress}%</span>
-                  </div>
-                  <div className="w-full bg-neutral-200 h-2">
-                    <div
-                      className="bg-primary h-2 transition-all duration-300"
-                      style={{ width: `${retrainProgress}%` }}
-                    />
-                  </div>
-                </div>
-              )}
 
-              {/* Model Pipeline Status Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <div className="bg-surface border border-border-subtle p-5 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-xs text-primary">Demand Predictor v3.4</span>
-                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+              {/* LightGBM Holdout Test Results */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Holdout Metrics Card */}
+                <div className="bg-surface border border-border-subtle p-6 space-y-4">
+                  <h3 className="font-headline-lg text-sm text-primary font-bold uppercase tracking-wider flex items-center gap-2">
+                    <span className="material-symbols-outlined text-sm">assessment</span>
+                    Final Holdout Test Results (LightGBM)
+                  </h3>
+                  
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="bg-surface-paper border border-border-subtle p-3 space-y-1">
+                      <span className="text-[10px] text-text-muted font-mono block">BEST ITERATION</span>
+                      <strong className="text-lg font-bold text-primary">182</strong>
+                    </div>
+                    <div className="bg-surface-paper border border-border-subtle p-3 space-y-1">
+                      <span className="text-[10px] text-text-muted font-mono block">WMAPE IMPROVEMENT</span>
+                      <strong className="text-lg font-bold text-emerald-600">+45.40%</strong>
+                    </div>
                   </div>
-                  <div className="text-xs font-mono text-text-muted space-y-1">
-                    <p>Accuracy: <span className="text-primary font-bold">99.2%</span></p>
-                    <p>Drift Score: <span className="text-emerald-500">0.02 (Low)</span></p>
-                    <p>Edge Latency: <span className="text-primary">12ms</span></p>
-                  </div>
-                </div>
 
-                <div className="bg-surface border border-border-subtle p-5 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-xs text-primary">Personalization v2.1</span>
-                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                  </div>
-                  <div className="text-xs font-mono text-text-muted space-y-1">
-                    <p>Accuracy: <span className="text-primary font-bold">98.8%</span></p>
-                    <p>Drift Score: <span className="text-emerald-500">0.05 (Low)</span></p>
-                    <p>Edge Latency: <span className="text-primary">18ms</span></p>
-                  </div>
-                </div>
-
-                <div className="bg-surface border border-border-subtle p-5 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-xs text-primary">Neural Fit Predictor</span>
-                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                  </div>
-                  <div className="text-xs font-mono text-text-muted space-y-1">
-                    <p>Accuracy: <span className="text-primary font-bold">99.6%</span></p>
-                    <p>Drift Score: <span className="text-emerald-500">0.01 (Low)</span></p>
-                    <p>Edge Latency: <span className="text-primary">8ms</span></p>
+                  <div className="space-y-3 pt-2">
+                    <div className="flex justify-between text-xs font-mono border-b border-border-subtle pb-1.5">
+                      <span className="font-bold text-primary">METRIC</span>
+                      <span className="font-bold text-primary">LIGHTGBM FORECAST</span>
+                      <span className="font-bold text-text-muted">NAIVE BASELINE</span>
+                    </div>
+                    <div className="flex justify-between text-xs font-mono">
+                      <span className="text-text-muted">MAE</span>
+                      <span className="font-bold text-primary">0.0994</span>
+                      <span className="text-text-muted">0.1820</span>
+                    </div>
+                    <div className="flex justify-between text-xs font-mono">
+                      <span className="text-text-muted">RMSE</span>
+                      <span className="font-bold text-primary">0.4081</span>
+                      <span className="text-text-muted">0.5507</span>
+                    </div>
+                    <div className="flex justify-between text-xs font-mono">
+                      <span className="text-text-muted">WMAPE</span>
+                      <span className="font-bold text-primary">9.03%</span>
+                      <span className="text-text-muted">16.53%</span>
+                    </div>
                   </div>
                 </div>
 
-                <div className="bg-surface border border-border-subtle p-5 space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="font-bold text-xs text-primary">Dynamic Pricing Model</span>
-                    <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                {/* Top 20 Demand Drivers (Feature Importance) */}
+                <div className="bg-surface border border-border-subtle p-6 space-y-4">
+                  <h3 className="font-headline-lg text-sm text-primary font-bold uppercase tracking-wider flex items-center gap-2">
+                    <span className="material-symbols-outlined text-sm">bar_chart</span>
+                    Top 20 Demand Drivers
+                  </h3>
+                  <div className="overflow-x-auto max-h-[195px] overflow-y-auto scrollbar-thin">
+                    <table className="w-full text-xs text-left">
+                      <thead>
+                        <tr className="border-b border-border-subtle text-text-muted font-label-sm uppercase bg-surface-paper">
+                          <th className="py-2 px-3">Feature Name</th>
+                          <th className="py-2 px-3 text-right">F-Score / Importance</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-border-subtle font-mono text-[11px]">
+                        {[
+                          { name: "Product_ID", imp: 4175 },
+                          { name: "lag_1", imp: 163 },
+                          { name: "month_sin", imp: 140 },
+                          { name: "transaction_count", imp: 134 },
+                          { name: "week_of_year", imp: 121 },
+                          { name: "avg_discount", imp: 102 },
+                          { name: "day_of_month", imp: 67 },
+                          { name: "pct_change_lag1", imp: 63 },
+                          { name: "roll_mean_28", imp: 63 },
+                          { name: "avg_unit_price", imp: 61 },
+                          { name: "Store_ID", imp: 60 },
+                          { name: "day_of_week", imp: 58 },
+                          { name: "lag_2", imp: 36 },
+                          { name: "roll_std_28", imp: 36 },
+                          { name: "roll_mean_14", imp: 32 },
+                          { name: "roll_std_14", imp: 26 },
+                          { name: "week_cos", imp: 19 },
+                          { name: "month", imp: 19 },
+                          { name: "month_cos", imp: 18 },
+                          { name: "roll_std_7", imp: 16 }
+                        ].map((feat) => (
+                          <tr key={feat.name} className="hover:bg-neutral-50">
+                            <td className="py-1 px-3 text-primary font-bold">{feat.name}</td>
+                            <td className="py-1 px-3 text-right text-text-muted">{feat.imp.toLocaleString()}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
-                  <div className="text-xs font-mono text-text-muted space-y-1">
-                    <p>Accuracy: <span className="text-primary font-bold">97.4%</span></p>
-                    <p>Drift Score: <span className="text-amber-500">0.08 (Moderate)</span></p>
-                    <p>Edge Latency: <span className="text-primary">22ms</span></p>
+                </div>
+              </div>
+
+              {/* Worst Performing Stores and Products by WMAPE */}
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Worst Stores */}
+                <div className="bg-surface border border-border-subtle p-6 space-y-4">
+                  <h3 className="font-headline-lg text-sm text-primary font-bold uppercase tracking-wider flex items-center gap-2">
+                    <span className="material-symbols-outlined text-sm">storefront</span>
+                    Worst 10 Stores by WMAPE
+                  </h3>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs text-left">
+                      <thead>
+                        <tr className="border-b border-border-subtle text-text-muted font-label-sm uppercase bg-surface-paper">
+                          <th className="py-2 px-3">Store ID</th>
+                          <th className="py-2 px-3 text-right">Actual</th>
+                          <th className="py-2 px-3 text-right">Predicted</th>
+                          <th className="py-2 px-3 text-right">Abs Error</th>
+                          <th className="py-2 px-3 text-right">WMAPE</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-border-subtle font-mono text-[11px]">
+                        {[
+                          { id: 29, act: 12.0, pred: 9.0, err: 3.0, wmape: 0.250000 },
+                          { id: 24, act: 9.0, pred: 7.0, err: 2.0, wmape: 0.222222 },
+                          { id: 30, act: 11.0, pred: 9.0, err: 2.0, wmape: 0.181818 },
+                          { id: 23, act: 76.0, pred: 63.0, err: 13.0, wmape: 0.171053 },
+                          { id: 12, act: 475.0, pred: 428.163759, err: 48.0, wmape: 0.101053 },
+                          { id: 1, act: 26449.0, pred: 23937.203967, err: 2516.859811, wmape: 0.095159 },
+                          { id: 21, act: 200.0, pred: 181.0, err: 19.0, wmape: 0.095000 },
+                          { id: 3, act: 5151.0, pred: 4677.833394, err: 473.356606, wmape: 0.091896 },
+                          { id: 26, act: 1852.0, pred: 1682.023750, err: 170.023750, wmape: 0.091805 },
+                          { id: 2, act: 17495.0, pred: 15907.769763, err: 1588.493997, wmape: 0.090797 }
+                        ].map((s) => (
+                          <tr key={s.id} className="hover:bg-neutral-50">
+                            <td className="py-1.5 px-3 text-primary font-bold">Store #{s.id}</td>
+                            <td className="py-1.5 px-3 text-right">{s.act.toLocaleString()}</td>
+                            <td className="py-1.5 px-3 text-right">{s.pred.toFixed(1)}</td>
+                            <td className="py-1.5 px-3 text-right">{s.err.toFixed(1)}</td>
+                            <td className="py-1.5 px-3 text-right text-rose-600 font-bold">{(s.wmape * 100).toFixed(2)}%</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+
+                {/* Worst Products */}
+                <div className="bg-surface border border-border-subtle p-6 space-y-4">
+                  <h3 className="font-headline-lg text-sm text-primary font-bold uppercase tracking-wider flex items-center gap-2">
+                    <span className="material-symbols-outlined text-sm">inventory</span>
+                    Worst 10 Products by WMAPE
+                  </h3>
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-xs text-left">
+                      <thead>
+                        <tr className="border-b border-border-subtle text-text-muted font-label-sm uppercase bg-surface-paper">
+                          <th className="py-2 px-3">Product ID</th>
+                          <th className="py-2 px-3 text-right">Actual</th>
+                          <th className="py-2 px-3 text-right">Predicted</th>
+                          <th className="py-2 px-3 text-right">Abs Error</th>
+                          <th className="py-2 px-3 text-right">WMAPE</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-border-subtle font-mono text-[11px]">
+                        {[
+                          { id: 12031, act: 3.0, pred: 1.0, err: 2.0, wmape: 0.666667 },
+                          { id: 12166, act: 3.0, pred: 1.0, err: 2.0, wmape: 0.666667 },
+                          { id: 14466, act: 3.0, pred: 1.0, err: 2.0, wmape: 0.666667 },
+                          { id: 13936, act: 8.0, pred: 3.0, err: 5.0, wmape: 0.625000 },
+                          { id: 12608, act: 7.0, pred: 3.0, err: 4.0, wmape: 0.571429 },
+                          { id: 13208, act: 2.0, pred: 1.0, err: 1.0, wmape: 0.500000 },
+                          { id: 14102, act: 2.0, pred: 1.0, err: 1.0, wmape: 0.500000 },
+                          { id: 14300, act: 4.0, pred: 2.0, err: 2.0, wmape: 0.500000 },
+                          { id: 14700, act: 2.0, pred: 1.0, err: 1.0, wmape: 0.500000 },
+                          { id: 14346, act: 10.0, pred: 5.0, err: 5.0, wmape: 0.500000 }
+                        ].map((p) => (
+                          <tr key={p.id} className="hover:bg-neutral-50">
+                            <td className="py-1.5 px-3 text-primary font-bold">SKU-{p.id}</td>
+                            <td className="py-1.5 px-3 text-right">{p.act.toLocaleString()}</td>
+                            <td className="py-1.5 px-3 text-right">{p.pred.toFixed(1)}</td>
+                            <td className="py-1.5 px-3 text-right">{p.err.toFixed(1)}</td>
+                            <td className="py-1.5 px-3 text-right text-rose-600 font-bold">{(p.wmape * 100).toFixed(2)}%</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>
 
               {/* Logs Stream */}
+
               <div className="bg-black text-white p-6 font-mono text-xs border border-neutral-800 space-y-3">
                 <div className="flex items-center justify-between text-neutral-400 border-b border-neutral-800 pb-2">
                   <span>ML SYSTEM TELEMETRY LOGS</span>
